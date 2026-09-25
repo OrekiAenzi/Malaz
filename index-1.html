@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Malaz | ملاذ</title>
+<meta name="description" content="Malaz is a free safe haven to vent, listen, chat and watch together.">
+<meta name="theme-color" content="#14282e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,500..700&family=Jost:wght@400;500;600;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --deep:#160c0a; --dusk:#20120e; --panel:#2b1712; --panel2:#38201a; --line:#4a2c22;
+  --lamp:#d9a441; --ember:#c1502e; --sage:#8a9a5b; --rose:#c97b6a; --text:#f3e6d3; --muted:#b79a80; --danger:#ff8d7a;
+  --mine:#453022;
+}
+*{box-sizing:border-box;margin:0}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{
+  background-color:var(--deep);
+  background-image:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(217,164,65,.10), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='none' stroke='%23d9a441' stroke-opacity='.07' stroke-width='1'%3E%3Ccircle cx='70' cy='70' r='46'/%3E%3Ccircle cx='70' cy='70' r='30'/%3E%3Cpath d='M70 24v92M24 70h92M35 35l70 70M105 35l-70 70'/%3E%3C/g%3E%3C/svg%3E");
+  color:var(--text);font:16px/1.55 'Jost',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:disabled{cursor:default}
+:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+input,textarea{font:inherit;color:var(--text);background:var(--deep);border:1px solid var(--line);border-radius:14px;padding:12px 14px;width:100%}
+input::placeholder,textarea::placeholder{color:#6f8784}
+input[type=checkbox]{width:20px;height:20px;padding:0;accent-color:var(--lamp);flex:none;margin-top:2px}
+input[type=range]{padding:0;border:0;background:none;accent-color:var(--lamp)}
+h1,h2,h3{font-family:'Fraunces',system-ui,sans-serif;line-height:1.15}
+h1{font-size:clamp(1.9rem,4.5vw,2.6rem);font-weight:700}
+h2{font-size:1.55rem;font-weight:700}
+h3{font-size:1.1rem;font-weight:600}
+.muted{color:var(--muted)}
+.lead{color:var(--muted);margin:6px 0 20px;max-width:56ch}
+.fine{font-size:.82rem;color:var(--muted)}
+.link{color:var(--lamp);text-decoration:underline;padding:10px 0;font-size:.95rem}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:999px;font-weight:600;min-height:46px;transition:background .15s,transform .1s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:linear-gradient(135deg,var(--lamp),var(--ember));color:#2a1206;box-shadow:0 6px 16px rgba(193,80,46,.3)}
+.btn-primary:disabled{opacity:.5}
+.btn-ghost{border:1px solid var(--line)}
+.btn-ghost:hover{background:var(--panel)}
+.btn.sm{min-height:38px;padding:8px 16px;font-size:.92rem}
+.btn.danger{color:var(--danger);border-color:rgba(255,141,122,.45)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 15px;border-radius:999px;border:1px solid var(--line);font-size:.92rem}
+.chip.sel{background:var(--lamp);color:#2a1d07;border-color:var(--lamp);font-weight:600}
+.chip.danger{color:var(--danger)}
+.chip:disabled{opacity:.55}
+
+/* gate */
+.gate{position:fixed;inset:0;overflow-y:auto;display:flex;justify-content:center;padding:28px 18px 40px}
+.gate-inner{width:100%;max-width:440px;margin:auto;display:flex;flex-direction:column;gap:18px}
+.arch{position:relative;align-self:center;width:min(240px,60vw);aspect-ratio:4/5;border:2.5px solid var(--lamp);border-radius:50% 50% 18px 18px/62% 62% 18px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:radial-gradient(ellipse 90% 70% at 50% 100%,rgba(193,80,46,.45),rgba(217,164,65,.09) 62%,transparent 80%);box-shadow:0 0 40px rgba(217,164,65,.18),inset 0 0 30px rgba(217,164,65,.08)}
+.arch::before{content:"";position:absolute;inset:10px;border:1px solid rgba(217,164,65,.4);border-radius:50% 50% 12px 12px/62% 62% 12px 12px;pointer-events:none}
+.arch::after{content:"";position:absolute;left:50%;top:-13px;transform:translateX(-50%);width:9px;height:9px;border-radius:50%;background:var(--lamp);box-shadow:0 0 10px rgba(217,164,65,.8)}
+.arch-ar{font:400 clamp(4rem,16vw,5.4rem)/1.1 'Aref Ruqaa',serif;color:var(--lamp);text-shadow:0 0 18px rgba(217,164,65,.35)}
+.arch-en{font:600 1.05rem 'Fraunces',serif;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.tagline{text-align:center;font:500 1.2rem/1.35 'Fraunces',sans-serif}
+.field label,.roles legend{display:block;font-weight:600;margin-bottom:8px;font-size:.95rem}
+.row{display:flex;gap:10px}
+.dice{flex:none;width:52px;border:1px solid var(--line);border-radius:14px;font-size:1.3rem}
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;border:0;padding:0}
+.roles legend{grid-column:1/-1;padding:0}
+.role{padding:12px 8px;border:1.5px solid var(--line);border-radius:18px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.role b{font-family:'Fraunces',sans-serif;font-size:1.05rem}
+.role span{font-size:.78rem;color:var(--muted);line-height:1.3}
+.role[data-role=venter].sel{border-color:var(--rose);background:rgba(201,123,106,.16)}
+.role[data-role=listener].sel{border-color:var(--sage);background:rgba(138,154,91,.16)}
+.role[data-role=both].sel{border-color:var(--lamp);background:rgba(217,164,65,.13)}
+.role.outfit.sel{border-color:var(--lamp);background:rgba(217,164,65,.13)}
+.agree{display:flex;gap:12px;font-size:.9rem;color:var(--muted);align-items:flex-start}
+.gate-msg{color:var(--danger);font-size:.92rem;min-height:1.2em;text-align:center}
+
+/* app shell */
+.app{display:grid;height:100dvh;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"top" "main" "nav"}
+.top{grid-area:top;display:flex;align-items:center;gap:14px;padding:10px 16px;background:var(--dusk);border-bottom:1px solid var(--line)}
+.main{grid-area:main;position:relative;min-height:0}
+.nav{grid-area:nav;display:flex;justify-content:space-around;background:var(--dusk);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand-ar{font:400 1.8rem/1 'Aref Ruqaa',serif;color:var(--lamp)}
+.brand-en{font:600 1.05rem 'Fraunces',sans-serif}
+.presence{margin-left:auto;font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.presence::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--sage);flex:none}
+.navbtn{position:relative;flex:1;max-width:96px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px 6px;border-radius:999px 999px 14px 14px;color:var(--muted);font-size:.78rem;font-weight:600}
+.navbtn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.navbtn.active{background:var(--panel2);color:var(--lamp)}
+.badge{position:absolute;top:2px;right:16px;min-width:18px;height:18px;border-radius:9px;background:var(--rose);color:#3a1512;font-size:.72rem;font-weight:700;display:grid;place-items:center;padding:0 5px}
+@media (min-width:900px){
+  .app{grid-template-columns:104px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"nav top" "nav main"}
+  .nav{flex-direction:column;justify-content:flex-start;align-items:center;gap:10px;padding:24px 0;border-top:0;border-right:1px solid var(--line)}
+  .navbtn{flex:none;width:80px}
+}
+
+/* nasheed */
+.nasheed{position:relative}
+.np{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted)}
+.np svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.np.on{color:var(--lamp);border-color:var(--lamp);box-shadow:0 0 14px rgba(242,192,120,.35)}
+.npanel{position:absolute;right:0;top:calc(100% + 10px);width:250px;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:16px;z-index:20;display:flex;flex-direction:column;gap:12px}
+.npanel .btns{display:flex;gap:8px;flex-wrap:wrap}
+
+/* views */
+.view{position:absolute;inset:0;overflow-y:auto;padding:24px 18px 36px;display:none}
+.view.on{display:block}
+.view.flexcol.on{display:flex;flex-direction:column;overflow:hidden;padding:0}
+.wrap{max-width:760px;margin:0 auto}
+.scroll{flex:1;min-height:0;overflow-y:auto;padding:24px 18px 36px}
+.block{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:4px 26px 26px 26px;padding:20px;margin-bottom:18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 10px 24px rgba(0,0,0,.22)}
+.block::before{content:"";position:absolute;left:18px;right:18px;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(217,164,65,.55),transparent)}
+
+/* home */
+.moods{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 10px}
+.mood{width:58px;height:58px;border-radius:50%;border:1.5px solid var(--line);font-size:1.6rem}
+.mood.sel{border-color:var(--lamp);background:rgba(242,192,120,.15)}
+.moodreply{min-height:1.5em;color:var(--muted);display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:12px}
+.rolebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0 22px}
+.rolebar>span{font-weight:600;font-size:.95rem}
+.chip[data-role=venter].sel{background:var(--rose);border-color:var(--rose)}
+.chip[data-role=listener].sel{background:var(--sage);border-color:var(--sage)}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:4px 22px 22px 22px;padding:18px;text-align:left;display:flex;flex-direction:column;gap:4px;box-shadow:0 8px 18px rgba(0,0,0,.2)}
+.tile b{font:600 1.15rem 'Fraunces',serif}
+.tile span{color:var(--muted);font-size:.88rem;line-height:1.35}
+.tile.talk{grid-column:1/-1;background:linear-gradient(135deg,var(--lamp),var(--ember));border-color:var(--lamp);color:#2a1206;border-radius:34px 34px 34px 8px;padding:24px;box-shadow:0 12px 28px rgba(193,80,46,.28)}
+.tile.talk b{font-size:1.45rem;font-family:'Fraunces',serif}
+.tile.talk span{color:#3d1c0c}
+.reminder{margin:6px 0 4px;padding:22px 22px 18px;border-right:3px solid var(--lamp);background:rgba(43,23,18,.7);border-radius:22px 6px 6px 22px}
+.rem-ar{font:400 1.7rem/1.9 'Amiri',serif;direction:rtl;text-align:right;color:var(--lamp)}
+.rem-en{margin-top:6px;font-size:1.05rem}
+.rem-src{color:var(--muted);font-size:.85rem;margin-top:4px}
+.notice{margin-top:22px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+
+/* majlis */
+.majlis{position:relative;margin:4px 0 22px;padding:30px 14px 16px;border-radius:8px 30px 30px 30px;overflow:hidden;min-height:180px;background:linear-gradient(180deg,#1c100b,#100907 78%);border:1px solid var(--line);box-shadow:inset 0 0 40px rgba(0,0,0,.5)}
+.majlis-glow{position:absolute;left:50%;bottom:38px;transform:translateX(-50%);width:180px;height:120px;background:radial-gradient(ellipse,rgba(233,118,47,.35),transparent 70%);pointer-events:none}
+.majlis-fire{position:absolute;left:50%;bottom:56px;transform:translateX(-50%);width:22px;height:22px;z-index:2}
+.flame{width:100%;height:100%;background:radial-gradient(circle at 50% 60%,#ffe6a8,#e9762f 55%,transparent 78%);border-radius:50% 50% 45% 45%/60% 60% 40% 40%;animation:flick 1.4s ease-in-out infinite alternate}
+@keyframes flick{0%{transform:scale(.82) translateY(0) rotate(-2deg)}100%{transform:scale(1.08) translateY(-2px) rotate(2deg)}}
+.majlis-rug{position:absolute;left:8%;right:8%;bottom:8px;height:56px;border-radius:12px;background:repeating-linear-gradient(90deg,#7a2020 0 9px,#8f2a2a 9px 18px);border:2px solid var(--lamp);opacity:.88}
+.majlis-rug::before{content:"";position:absolute;inset:5px;border:1px solid rgba(217,164,65,.5);border-radius:8px}
+.majlis-seats{position:relative;z-index:2;display:flex;justify-content:center;align-items:flex-end;gap:14px;flex-wrap:wrap;padding-top:50px}
+.seat{display:flex;flex-direction:column;align-items:center;gap:4px;width:44px}
+.seat-fig{position:relative;width:34px;height:44px;color:#d9a441}
+.fig-head{position:absolute;left:50%;top:0;transform:translateX(-50%);width:18px;height:18px;border-radius:50%;background:currentColor;z-index:2;box-shadow:0 2px 4px rgba(0,0,0,.35)}
+.fig-body{position:absolute;left:50%;bottom:0;transform:translateX(-50%);background:currentColor;z-index:1;box-shadow:0 3px 6px rgba(0,0,0,.35)}
+/* Kurta: straight tunic, small rounded cap */
+.outfit-kurta .fig-body{width:22px;height:28px;border-radius:7px 7px 9px 9px;top:15px}
+.outfit-kurta .fig-head{border-radius:46% 46% 50% 50%}
+/* Abaya: flowing wide hem, draped headscarf over the shoulders */
+.outfit-abaya .fig-body{width:30px;height:32px;top:13px;clip-path:polygon(34% 0,66% 0,100% 100%,0 100%);border-radius:3px 3px 0 0}
+.outfit-abaya .fig-head{width:19px;height:21px;border-radius:50% 50% 42% 42%;top:-2px}
+.outfit-abaya .fig-head::after{content:"";position:absolute;left:50%;top:64%;transform:translateX(-50%);width:30px;height:15px;background:currentColor;border-radius:0 0 55% 55%;opacity:.92;z-index:-1}
+/* Coat: structured Turkish coat with a popped collar and turban-style head wrap */
+.outfit-coat .fig-body{width:25px;height:30px;top:14px;border-radius:5px 5px 8px 8px}
+.outfit-coat .fig-body::before{content:"";position:absolute;left:50%;top:-3px;transform:translateX(-50%);width:27px;height:9px;background:currentColor;clip-path:polygon(50% 100%,4% 0,96% 0);opacity:.85}
+.outfit-coat .fig-head{width:19px;height:15px;border-radius:48% 48% 42% 42%}
+.outfit-coat .fig-head::after{content:"";position:absolute;left:50%;top:-4px;transform:translateX(-50%);width:21px;height:8px;background:currentColor;border-radius:50% 50% 20% 20%;opacity:.9}
+.seat-name{font-size:.62rem;color:var(--muted);max-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat-more{display:flex;align-items:flex-end;color:var(--muted);font-size:.78rem;padding-bottom:4px}
+.majlis-label{position:relative;z-index:2;text-align:center;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:12px}
+.majlis-empty{position:relative;z-index:2;text-align:center;color:var(--muted);font-size:.85rem;padding-top:56px}
+
+/* talk */
+.wait{background:var(--dusk);border:1px solid var(--line);border-radius:20px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.wait-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wait-top b{font-family:'Fraunces',sans-serif;font-size:1.05rem}
+.topic{padding:2px 12px;border-radius:999px;background:rgba(227,165,160,.16);color:var(--rose);font-size:.82rem}
+.ago{margin-left:auto;color:var(--muted);font-size:.8rem}
+.wait-note{color:var(--text);opacity:.85;overflow-wrap:anywhere}
+.wait .btn{align-self:flex-start}
+.empty{color:var(--muted);text-align:center;padding:26px 10px;font-size:.95rem}
+.guide{font-size:.92rem;color:var(--muted)}
+.guide summary{cursor:pointer;color:var(--sage);font-weight:600;padding:4px 0}
+.guide ul{margin:8px 0 4px 20px;display:flex;flex-direction:column;gap:6px}
+
+/* sessions and chat */
+.sess{flex:1;min-height:0;display:flex;flex-direction:column}
+.sess-head{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--dusk);flex-wrap:wrap}
+.sess-head>div:first-child{flex:1;min-width:150px}
+.sess-title{font:600 1.1rem 'Fraunces',sans-serif}
+.sess-sub{font-size:.85rem;color:var(--muted);display:flex;gap:10px}
+.sess-actions{display:flex;gap:8px;flex-wrap:wrap}
+.banner{margin:10px 16px 0;padding:10px 14px;border-radius:14px;background:var(--panel);font-size:.88rem;color:var(--muted)}
+.msgs{flex:1;min-height:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:min(82%,520px);padding:10px 14px;display:flex;flex-direction:column;gap:2px}
+.msg.mine{align-self:flex-end;background:var(--mine);border-radius:22px 22px 6px 22px}
+.msg.theirs{align-self:flex-start;background:var(--panel);border-radius:22px 22px 22px 6px}
+.msg-meta{display:flex;align-items:center;gap:10px}
+.msg-name{font-weight:700;font-size:.85rem;color:var(--sage)}
+.msg-flag{font-size:.72rem;color:var(--muted);text-decoration:underline;padding:2px 0}
+.msg-text{white-space:pre-wrap;overflow-wrap:anywhere}
+.msg-time{font-size:.7rem;color:var(--muted);align-self:flex-end}
+.composer{display:flex;gap:10px;padding:12px 14px;border-top:1px solid var(--line);background:var(--dusk);align-items:flex-end}
+.composer textarea{resize:none;max-height:120px;border-radius:22px;flex:1;min-height:46px}
+.roomtabs{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;border-bottom:1px solid var(--line);background:var(--dusk);flex:none}
+.roomtabs .chip{white-space:nowrap}
+.roomhint{padding:8px 16px 0;font-size:.85rem;color:var(--muted)}
+
+/* watch */
+.room{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr)}
+.room .sess-head{grid-row:1}
+.stage{grid-row:2;overflow-y:auto}
+.watchchat{grid-row:3;display:flex;flex-direction:column;min-height:0}
+.player-wrap{position:relative;aspect-ratio:16/9;background:#000;width:100%}
+#ytwrap,#ytwrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.shield{position:absolute;inset:0;z-index:2}
+.watchbar{display:flex;gap:8px;padding:10px 14px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--line)}
+.watchbar .fine{flex:1;min-width:180px}
+@media (min-width:900px) and (orientation:landscape){
+  .room{grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr);grid-template-rows:auto minmax(0,1fr)}
+  .room .sess-head{grid-column:1/-1}
+  .stage{grid-row:2;grid-column:1}
+  .watchchat{grid-row:2;grid-column:2;border-left:1px solid var(--line)}
+}
+.roomcard{background:var(--dusk);border:1px solid var(--line);border-radius:20px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.roomcard>div{flex:1;min-width:0}
+.roomcard b{font-family:'Fraunces',sans-serif;font-size:1.05rem;display:block;overflow-wrap:anywhere}
+
+/* calm */
+.breath{display:flex;flex-direction:column;align-items:center;gap:14px;padding:26px 10px;background:var(--panel);border-radius:34px;margin-bottom:22px}
+.bc{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(242,192,120,.75),rgba(242,192,120,.15) 70%);transform:scale(.7)}
+.bc.run{animation:breathe 12s ease-in-out infinite}
+@keyframes breathe{0%{transform:scale(.7)}33%{transform:scale(1.15)}50%{transform:scale(1.15)}100%{transform:scale(.7)}}
+.bt{font:600 1.3rem 'Fraunces',sans-serif;min-height:1.6em}
+.dhikr{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:22px}
+.dh-ar{font:400 2rem/1.6 'Amiri',serif;color:var(--lamp)}
+.dh-btn{width:170px;height:170px;border-radius:50%;border:2px solid var(--lamp);font:700 3rem 'Fraunces',sans-serif;background:rgba(242,192,120,.08);color:var(--lamp)}
+.dh-btn:active{background:rgba(242,192,120,.22)}
+
+/* modal and toast */
+.modal{position:fixed;inset:0;background:rgba(5,12,14,.75);display:grid;place-items:center;padding:20px;z-index:50}
+.modal-box{background:var(--panel);border:1px solid var(--line);border-radius:28px;padding:24px;max-width:460px;width:100%;display:flex;flex-direction:column;gap:12px;max-height:90dvh;overflow:auto}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;background:var(--lamp);color:#2a1d07;padding:10px 18px;border-radius:999px;font-weight:600;z-index:60;pointer-events:none;transition:opacity .25s,transform .25s;max-width:90vw;text-align:center;font-size:.92rem}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+noscript{display:block;padding:40px;text-align:center}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<noscript>Malaz needs JavaScript to run. Please turn it on in your browser.</noscript>
+
+<div style="position:fixed;left:-9999px;top:-9999px;width:2px;height:2px;overflow:hidden" aria-hidden="true"><div id="bgmplayer"></div></div>
+
+<!-- ENTRY SCREEN -->
+<div id="gate" class="gate">
+  <div class="gate-inner">
+    <div class="arch"><div class="arch-ar">ملاذ</div><div class="arch-en">Malaz</div></div>
+    <p class="tagline">A safe haven to vent, listen and be heard.</p>
+    <div class="field">
+      <label for="nick">Your nickname</label>
+      <div class="row">
+        <input id="nick" maxlength="20" autocomplete="off" placeholder="Pick any name you like">
+        <button id="dice" class="dice" type="button" aria-label="Suggest a random nickname">🎲</button>
+      </div>
+    </div>
+    <fieldset class="roles">
+      <legend>I'm here to</legend>
+      <button type="button" class="role" data-role="venter"><b>Vent</b><span>I need to be heard</span></button>
+      <button type="button" class="role" data-role="listener"><b>Listen</b><span>I want to help</span></button>
+      <button type="button" class="role" data-role="both"><b>Both</b><span>A bit of each</span></button>
+    </fieldset>
+    <fieldset class="roles" id="outfitPicker">
+      <legend>Choose your look</legend>
+      <button type="button" class="role outfit" data-outfit="kurta"><b>Kurta</b><span>Simple, straight</span></button>
+      <button type="button" class="role outfit" data-outfit="abaya"><b>Abaya</b><span>Flowing, draped</span></button>
+      <button type="button" class="role outfit" data-outfit="coat"><b>Coat</b><span>Turkish coat</span></button>
+    </fieldset>
+    <label class="agree"><input type="checkbox" id="agree"><span>I understand Malaz is peer support from volunteers. It is not professional help or an emergency service.</span></label>
+    <button id="enter" class="btn btn-primary" type="button">Enter Malaz</button>
+    <p id="gate-msg" class="gate-msg" role="alert"></p>
+    <p class="fine" style="text-align:center">Soft nasheed plays after you enter. You can mute it anytime.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="app" hidden>
+  <header class="top">
+    <div class="brand"><span class="brand-ar">ملاذ</span><span class="brand-en">Malaz</span></div>
+    <div id="presence" class="presence"></div>
+    <div class="nasheed">
+      <button id="np" class="np" type="button" aria-label="Nasheed controls">
+        <svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg>
+      </button>
+      <div id="npanel" class="npanel" hidden>
+        <b>Nasheed</b>
+        <div class="btns">
+          <button id="np-play" class="btn btn-primary sm" type="button">Play</button>
+          <button id="np-next" class="btn btn-ghost sm" type="button" hidden>Next</button>
+          <button id="np-mute" class="btn btn-ghost sm" type="button">Mute</button>
+        </div>
+        <label class="fine" for="vol">Volume</label>
+        <input id="vol" type="range" min="0" max="100" value="35">
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- HOME -->
+    <section id="v-home" class="view">
+      <div class="wrap">
+        <h1 id="hello">Salaam</h1>
+        <p class="lead">How is your heart today?</p>
+        <div class="moods" id="moods">
+          <button class="mood" data-mood="great" aria-label="Great">😊</button>
+          <button class="mood" data-mood="okay" aria-label="Okay">🙂</button>
+          <button class="mood" data-mood="tired" aria-label="Tired">😐</button>
+          <button class="mood" data-mood="low" aria-label="Low">😔</button>
+          <button class="mood" data-mood="heavy" aria-label="Heavy">😢</button>
+        </div>
+        <div id="moodreply" class="moodreply"></div>
+        <div class="majlis" id="majlis">
+          <div class="majlis-glow"></div>
+          <div class="majlis-fire"><div class="flame"></div></div>
+          <div class="majlis-rug"></div>
+          <div id="majlis-seats" class="majlis-seats"></div>
+          <div class="majlis-label">The Majlis, who's here now</div>
+        </div>
+        <div class="rolebar">
+          <span>You are here to</span>
+          <button class="chip" data-role="venter" type="button">Vent</button>
+          <button class="chip" data-role="listener" type="button">Listen</button>
+          <button class="chip" data-role="both" type="button">Both</button>
+        </div>
+        <div class="tiles">
+          <button class="tile talk" data-go="vent" type="button"><b>Talk to someone</b><span>Vent, or listen to someone who needs it</span></button>
+          <button class="tile" data-go="chat" type="button"><b>Chat rooms</b><span>Lounge, faith, study and late night</span></button>
+          <button class="tile" data-go="watch" type="button"><b>Watch together</b><span>Share a YouTube video in sync</span></button>
+          <button class="tile" data-go="calm" type="button"><b>Quiet corner</b><span>Breathing, dhikr and reminders</span></button>
+        </div>
+        <div class="reminder" id="reminder"></div>
+        <button id="rem-next" class="link" type="button">Show another reminder</button>
+        <p class="notice">Malaz is run by volunteers and is not a substitute for professional help. If you or someone else is in immediate danger, contact your local emergency number.</p>
+      </div>
+    </section>
+
+    <!-- TALK -->
+    <section id="v-vent" class="view flexcol">
+      <div id="vent-lobby" class="scroll"><div class="wrap">
+        <h2>Talk</h2>
+        <p class="lead">Someone will listen. Nothing has to be fixed today.</p>
+        <div id="vent-ask" class="block">
+          <h3>I need to vent</h3>
+          <p class="muted">What is it about?</p>
+          <div id="topics" class="chips"></div>
+          <textarea id="vent-note" rows="3" maxlength="160" placeholder="Anything you want the listener to know first (optional)"></textarea>
+          <button id="vent-go" class="btn btn-primary" type="button">Find a listener</button>
+          <p class="fine">Listeners see your nickname and topic only.</p>
+        </div>
+        <div id="vent-list" class="block">
+          <h3>People waiting to be heard</h3>
+          <details class="guide"><summary>How to be a good listener</summary>
+            <ul>
+              <li>Listen first. Reflect back what you hear, like "That sounds really hard."</li>
+              <li>Do not rush to fix or judge.</li>
+              <li>Do not give medical, legal or religious rulings. Point to a qualified person.</li>
+              <li>Never ask for personal details, photos or money.</li>
+              <li>If someone may harm themselves, encourage them to contact emergency services or a helpline.</li>
+              <li>End the session if you feel drained. Your wellbeing matters too.</li>
+            </ul>
+          </details>
+          <div id="wait-items"></div>
+        </div>
+        <button id="role-nudge" class="link" type="button"></button>
+      </div></div>
+
+      <div id="vent-session" class="sess" hidden>
+        <div class="sess-head">
+          <div>
+            <div id="sess-title" class="sess-title"></div>
+            <div class="sess-sub"><span id="sess-sub"></span><span id="sess-timer"></span></div>
+          </div>
+          <div class="sess-actions">
+            <button id="sess-heart" class="chip" type="button" hidden>Say thank you</button>
+            <button id="sess-end" class="chip danger" type="button">End session</button>
+          </div>
+        </div>
+        <div id="sess-note" class="banner" hidden></div>
+        <div id="sess-msgs" class="msgs"></div>
+        <div class="composer">
+          <textarea id="sess-input" rows="1" maxlength="500" placeholder="Write a message"></textarea>
+          <button id="sess-send" class="btn btn-primary" type="button">Send</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHAT -->
+    <section id="v-chat" class="view flexcol">
+      <div id="roomtabs" class="roomtabs"></div>
+      <div id="roomhint" class="roomhint"></div>
+      <div id="chat-msgs" class="msgs"></div>
+      <div class="composer">
+        <textarea id="chat-input" rows="1" maxlength="500" placeholder="Say something kind"></textarea>
+        <button id="chat-send" class="btn btn-primary" type="button">Send</button>
+      </div>
+    </section>
+
+    <!-- WATCH -->
+    <section id="v-watch" class="view flexcol">
+      <div id="watch-lobby" class="scroll"><div class="wrap">
+        <h2>Watch together</h2>
+        <p class="lead">Join a room to watch the same YouTube video in sync, with a chat beside it.</p>
+        <button id="room-new" class="btn btn-primary" type="button" style="margin-bottom:20px">Create a room</button>
+        <div id="rooms"></div>
+        <p class="notice">Only share videos that are public domain, Creative Commons, or that you have permission to share. Rooms hidden after 12 hours.</p>
+      </div></div>
+
+      <div id="watch-room" class="room" hidden>
+        <div class="sess-head">
+          <div>
+            <div id="room-title" class="sess-title"></div>
+            <div id="room-sub" class="sess-sub"></div>
+          </div>
+          <div class="sess-actions">
+            <button id="room-change" class="chip" type="button" hidden>Change video</button>
+            <button id="room-close" class="chip danger" type="button" hidden>Close room</button>
+            <button id="room-leave" class="chip" type="button">Leave</button>
+          </div>
+        </div>
+        <div class="stage">
+          <div class="player-wrap"><div id="ytwrap"></div><div id="shield" class="shield"></div></div>
+          <div class="watchbar">
+            <button id="w-sync" class="btn btn-ghost sm" type="button">Sync</button>
+            <button id="w-mute" class="btn btn-ghost sm" type="button">Mute</button>
+            <button id="w-full" class="btn btn-ghost sm" type="button">Full screen</button>
+            <span id="w-note" class="fine"></span>
+          </div>
+        </div>
+        <div class="watchchat">
+          <div id="watch-msgs" class="msgs"></div>
+          <div class="composer">
+            <textarea id="watch-input" rows="1" maxlength="500" placeholder="Chat with the room"></textarea>
+            <button id="watch-send" class="btn btn-primary" type="button">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALM -->
+    <section id="v-calm" class="view">
+      <div class="wrap">
+        <h2>Quiet corner</h2>
+        <p class="lead">Slow down for a minute. The nasheed keeps playing softly.</p>
+        <div class="breath">
+          <div id="bc" class="bc"></div>
+          <div id="bt" class="bt">Ready when you are</div>
+          <button id="bstart" class="btn btn-ghost" type="button">Start breathing</button>
+        </div>
+        <div class="dhikr">
+          <h3>Dhikr counter</h3>
+          <div id="dh-chips" class="chips" style="justify-content:center"></div>
+          <div id="dh-ar" class="dh-ar"></div>
+          <button id="dh-btn" class="dh-btn" type="button" aria-label="Count">0</button>
+          <div id="dh-info" class="fine"></div>
+          <button id="dh-reset" class="link" type="button">Reset</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="nav" aria-label="Main">
+    <button class="navbtn active" data-go="home" type="button"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+    <button class="navbtn" data-go="vent" type="button"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Talk<span id="badge-talk" class="badge" hidden>0</span></button>
+    <button class="navbtn" data-go="chat" type="button"><svg viewBox="0 0 24 24"><path d="M3 5h13v9H9l-4 3v-3H3z"/><path d="M19 9h2v9h-2v3l-3-3h-6v-2"/></svg>Chat</button>
+    <button class="navbtn" data-go="watch" type="button"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9l5 3-5 3z"/></svg>Watch</button>
+    <button class="navbtn" data-go="calm" type="button"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>Calm</button>
+  </nav>
+</div>
+
+<div id="toast" class="toast" role="status"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, getDoc, deleteDoc, onSnapshot, query, orderBy, limit, where, serverTimestamp, increment, runTransaction, Timestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+/* ===== SETTINGS ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyDfy16kyGK9SfWFPTCY9FWlwQI34USa2QA",
+  authDomain: "malaz-safehaven.firebaseapp.com",
+  projectId: "malaz-safehaven",
+  storageBucket: "malaz-safehaven.firebasestorage.app",
+  messagingSenderId: "196427672383",
+  appId: "1:196427672383:web:7d029fe9ca43540b48c18a"
+};
+// Your nasheed YouTube playlist (audio plays in the background, video stays hidden).
+const NASHEED_PLAYLIST = "PLaeT9bMGFtdmwyZZdTCQ3emu6QMymZyaI";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ===== HELPERS ===== */
+const $ = id => document.getElementById(id);
+const h = (tag, props = {}, ...kids) => {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (v === true) e.setAttribute(k, '');
+    else if (v !== false && v != null) e.setAttribute(k, v);
+  }
+  for (const c of kids.flat()) {
+    if (c == null || c === false) continue;
+    e.append(c.nodeType ? c : document.createTextNode(String(c)));
+  }
+  return e;
+};
+const mem = {};
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('malaz_' + k); return v == null ? d : JSON.parse(v); } catch (e) { return k in mem ? mem[k] : d; } },
+  set(k, v) { try { localStorage.setItem('malaz_' + k, JSON.stringify(v)); } catch (e) { mem[k] = v; } }
+};
+const ms = t => (t && t.toMillis ? t.toMillis() : Date.now());
+const docs = snap => snap.docs.map(d => ({ id: d.id, ...d.data({ serverTimestamps: 'estimate' }) }));
+const fmtTime = t => new Date(ms(t)).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+const ago = t => { const m = Math.floor((Date.now() - ms(t)) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : Math.floor(m / 60) + ' h ago'; };
+let toastT;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 3800); }
+
+const BAD = /\b(fuck\w*|shit\w*|bitch\w*|asshole\w*|bastard\w*|cunt\w*|slut\w*|whore\w*)\b/gi;
+const clean = s => s.replace(BAD, m => m[0] + '*'.repeat(m.length - 1));
+const cleanName = s => clean(s.replace(/\s+/g, ' ').trim().slice(0, 20));
+const CRISIS = /\b(suicid\w*|kill(ing)? myself|end(ing)? my life|want to die|wanna die|self[- ]?harm\w*|hurt(ing)? myself|cut(ting)? myself|end it all|no reason to live|better off dead)\b/i;
+
+const ADJ = ['Calm', 'Gentle', 'Quiet', 'Patient', 'Hopeful', 'Kind', 'Serene', 'Humble', 'Bright', 'Steady', 'Peaceful', 'Sincere'];
+const NOUN = ['Lantern', 'Olive', 'Dove', 'Palm', 'Moon', 'Oasis', 'Pearl', 'Cedar', 'Falcon', 'River', 'Dawn', 'Sparrow'];
+const randomName = () => ADJ[Math.floor(Math.random() * ADJ.length)] + NOUN[Math.floor(Math.random() * NOUN.length)] + (10 + Math.floor(Math.random() * 90));
+
+/* ===== STATE ===== */
+const S = {
+  uid: null, name: '', role: 'both', tab: 'home',
+  ventId: null, vent: null, waiting: [], waitingLoaded: false, topic: 'Something else',
+  croom: 'lounge', room: null, rooms: [], presence: [], presenceLoaded: false,
+  blocked: new Set(store.get('blocked', [])), modal: null, lastCrisis: 0, bgmWas: false, sessTimer: null
+};
+const unsub = {};
+const userRef = () => doc(db, 'users', S.uid);
+
+const authPromise = new Promise((resolve, reject) => {
+  onAuthStateChanged(auth, u => { if (u) resolve(u); });
+  signInAnonymously(auth).catch(reject);
+});
+authPromise.catch(() => {});
+
+/* ===== NASHEED (YouTube playlist, audio only) ===== */
+let bgmVol = store.get('vol', 0.35);
+$('vol').value = Math.round(bgmVol * 100);
+let bgmWarned = false;
+const Music = { player: null, ready: false, playing: false, muted: false, pending: false };
+function ensureMusicPlayer() {
+  if (Music.player) return;
+  loadYT().then(() => {
+    if (Music.player) return;
+    Music.player = new YT.Player('bgmplayer', {
+      height: '1', width: '1',
+      playerVars: { listType: 'playlist', list: NASHEED_PLAYLIST, autoplay: 0, controls: 0, disablekb: 1, playsinline: 1 },
+      events: {
+        onReady: () => {
+          Music.ready = true;
+          Music.player.setVolume(Math.round(bgmVol * 100));
+          if (Music.pending) { Music.player.playVideo(); Music.pending = false; }
+        },
+        onStateChange: e => { Music.playing = e.data === 1; syncMusicUI(); },
+        onError: () => { if (!bgmWarned) { bgmWarned = true; toast('Could not load the nasheed playlist.'); } }
+      }
+    });
+  }).catch(() => { if (!bgmWarned) { bgmWarned = true; toast('Could not load the nasheed player.'); } });
+}
+function startMusic() {
+  store.set('music', true);
+  if (!Music.player) { Music.pending = true; ensureMusicPlayer(); }
+  else if (Music.ready) Music.player.playVideo();
+}
+function pauseMusic() { store.set('music', false); if (Music.player && Music.ready) Music.player.pauseVideo(); }
+function syncMusicUI() {
+  $('np').classList.toggle('on', Music.playing);
+  $('np-play').textContent = Music.playing ? 'Pause' : 'Play';
+  $('np-mute').textContent = Music.muted ? 'Unmute' : 'Mute';
+}
+$('np').onclick = () => { $('npanel').hidden = !$('npanel').hidden; };
+$('np-play').onclick = () => { if (Music.playing) pauseMusic(); else startMusic(); };
+$('np-next').hidden = false;
+$('np-next').onclick = () => { if (Music.player && Music.ready) Music.player.nextVideo(); else toast('The nasheed is still loading.'); };
+$('np-mute').onclick = () => {
+  if (!Music.player || !Music.ready) return;
+  if (Music.muted) { Music.player.unMute(); Music.muted = false; } else { Music.player.mute(); Music.muted = true; }
+  syncMusicUI();
+};
+$('vol').oninput = () => { bgmVol = $('vol').value / 100; store.set('vol', bgmVol); if (Music.player && Music.ready) Music.player.setVolume(Math.round(bgmVol * 100)); };
+document.addEventListener('click', e => { if (!e.target.closest('.nasheed')) $('npanel').hidden = true; });
+
+/* ===== MODAL ===== */
+function closeModal() { if (S.modal) { S.modal.remove(); S.modal = null; } }
+function modal(title, nodes) {
+  closeModal();
+  const box = h('div', { class: 'modal-box', role: 'dialog', 'aria-modal': 'true' }, h('h3', { text: title }), nodes);
+  const ov = h('div', { class: 'modal', onclick: e => { if (e.target === ov) closeModal(); } }, box);
+  document.body.append(ov);
+  S.modal = ov;
+  return box;
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function showCrisis() {
+  if (Date.now() - S.lastCrisis < 10 * 60000) return;
+  S.lastCrisis = Date.now();
+  modal('You matter, and help is available', [
+    h('p', { text: "It sounds like things may feel very heavy right now. If you might act on thoughts of harming yourself, or you are in immediate danger, please contact your local emergency number now." }),
+    h('p', { text: "You can find a free helpline in your country at findahelpline.com. For Muslim-friendly support, look at Naseeha at naseeha.org." }),
+    h('p', { class: 'muted', text: "Malaz listeners are volunteers, not professionals. You are welcome to keep talking here, and please reach out to someone you trust as well." }),
+    h('a', { class: 'btn btn-primary', href: 'https://findahelpline.com', target: '_blank', rel: 'noopener', text: 'Find a helpline' }),
+    h('button', { class: 'btn btn-ghost', type: 'button', text: "I'm okay, continue", onclick: closeModal })
+  ]);
+}
+
+/* ===== GATE ===== */
+let selRole = store.get('role', 'both');
+function paintRoles() { document.querySelectorAll('.role[data-role]').forEach(b => b.classList.toggle('sel', b.dataset.role === selRole)); }
+paintRoles();
+document.querySelectorAll('.role[data-role]').forEach(b => b.onclick = () => { selRole = b.dataset.role; paintRoles(); });
+let selOutfit = store.get('outfit', 'kurta');
+function paintOutfits() { document.querySelectorAll('.outfit').forEach(b => b.classList.toggle('sel', b.dataset.outfit === selOutfit)); }
+paintOutfits();
+document.querySelectorAll('.outfit').forEach(b => b.onclick = () => { selOutfit = b.dataset.outfit; paintOutfits(); });
+$('nick').value = store.get('name', '') || randomName();
+$('agree').checked = store.get('agreed', false);
+$('dice').onclick = () => { $('nick').value = randomName(); };
+
+$('enter').onclick = async () => {
+  const btn = $('enter'), msg = $('gate-msg');
+  msg.textContent = '';
+  const name = cleanName($('nick').value);
+  if (name.length < 2) { msg.textContent = 'Choose a nickname with at least 2 characters.'; return; }
+  if (!$('agree').checked) { msg.textContent = 'Please tick the box to continue.'; return; }
+  const reset = () => { btn.disabled = false; btn.textContent = 'Enter Malaz'; };
+  btn.disabled = true; btn.textContent = 'Connecting...';
+  if (store.get('music', true)) startMusic();
+  try {
+    const user = await authPromise;
+    S.uid = user.uid;
+  } catch (e) {
+    const code = e && e.code || '';
+    msg.textContent = code === 'auth/network-request-failed'
+      ? 'Could not connect. Check your internet and try again.'
+      : 'Sign-in is not set up. In Firebase, open Authentication, tap Get started, and enable Anonymous.';
+    reset(); return;
+  }
+  S.name = name; S.role = selRole; S.outfit = selOutfit;
+  store.set('name', name); store.set('role', selRole); store.set('outfit', selOutfit); store.set('agreed', true);
+  try {
+    await setDoc(userRef(), { name, role: selRole, outfit: selOutfit, lastSeen: serverTimestamp() }, { merge: true });
+    const snap = await getDoc(userRef());
+    S.activeVent = (snap.data() || {}).activeVent || null;
+  } catch (e) {
+    msg.textContent = e && e.code === 'permission-denied'
+      ? 'The database is locked. In Firebase, open Firestore, then Rules, and publish the rules.'
+      : 'Could not reach the database. Try again.';
+    reset(); return;
+  }
+  enterApp();
+};
+
+/* ===== NAVIGATION ===== */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-go]');
+  if (b) showTab(b.dataset.go);
+});
+function toBottom(box) { requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; }); }
+function showTab(t) {
+  S.tab = t;
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + t));
+  document.querySelectorAll('.navbtn').forEach(b => b.classList.toggle('active', b.dataset.go === t));
+  if (t === 'chat') { mountChat(); toBottom($('chat-msgs')); } else unmountChat();
+  if (t === 'watch') mountWatchLobby(); else { unmountWatchLobby(); if (W.id) leaveRoom(); }
+  if (t === 'vent') toBottom($('sess-msgs'));
+}
+
+function enterApp() {
+  $('gate').hidden = true; $('app').hidden = false;
+  $('hello').textContent = 'Salaam, ' + S.name;
+  buildStatic();
+  watchPresence();
+  watchWaiting();
+  if (S.activeVent) openSession(S.activeVent);
+  setInterval(beat, 4 * 60000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) beat(); });
+  paintRoleChips();
+  showTab('home');
+  renderLobby();
+  syncMusicUI();
+}
+function beat() { if (S.uid) setDoc(userRef(), { lastSeen: serverTimestamp(), name: S.name, role: S.role }, { merge: true }).catch(() => {}); }
+
+/* ===== HOME ===== */
+const MOOD = {
+  great: "Alhamdulillah. Carry that lightness with you, and maybe share it in the Lounge.",
+  okay: "Steady is good. Take one slow breath if you need it.",
+  tired: "Rest is not laziness. Be gentle with yourself today.",
+  low: "Thank you for being honest. You don't have to carry this alone.",
+  heavy: "It sounds heavy right now. A listener can sit with you if you'd like."
+};
+const REMINDERS = [
+  ['فَإِنَّ مَعَ الْعُسْرِ يُسْرًا', 'Indeed, with hardship comes ease.', 'Quran 94:5'],
+  ['أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ', 'Truly, in the remembrance of Allah hearts find rest.', 'Quran 13:28'],
+  ['لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا', 'Allah does not burden a soul beyond what it can bear.', 'Quran 2:286'],
+  ['وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ', 'Whoever relies on Allah, He is enough for them.', 'Quran 65:3'],
+  ['حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ', 'Allah is enough for us, and He is the best disposer of affairs.', 'Quran 3:173'],
+  ['مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ', 'Your Lord has not abandoned you, nor is He displeased with you.', 'Quran 93:3'],
+  ['فَاذْكُرُونِي أَذْكُرْكُمْ', 'So remember Me, and I will remember you.', 'Quran 2:152'],
+  ['وَاللَّهُ فِي عَوْنِ الْعَبْدِ مَا كَانَ الْعَبْدُ فِي عَوْنِ أَخِيهِ', 'Allah helps His servant as long as the servant helps his brother.', 'Sahih Muslim']
+];
+let remI = Math.floor(Date.now() / 86400000) % REMINDERS.length;
+function renderReminder() {
+  const r = REMINDERS[remI];
+  $('reminder').replaceChildren(h('div', { class: 'rem-ar', text: r[0] }), h('div', { class: 'rem-en', text: r[1] }), h('div', { class: 'rem-src', text: r[2] }));
+}
+$('rem-next').onclick = () => { remI = (remI + 1) % REMINDERS.length; renderReminder(); };
+
+function paintRoleChips() {
+  document.querySelectorAll('.rolebar .chip').forEach(c => c.classList.toggle('sel', c.dataset.role === S.role));
+}
+async function setRole(r) {
+  S.role = r; store.set('role', r);
+  paintRoleChips();
+  try { await setDoc(userRef(), { role: r }, { merge: true }); } catch (e) {}
+  watchWaiting(); renderLobby();
+  toast(r === 'venter' ? 'You are here to vent.' : r === 'listener' ? 'You are here to listen.' : 'You are here to vent and listen.');
+}
+document.querySelectorAll('.rolebar .chip').forEach(c => c.onclick = () => setRole(c.dataset.role));
+$('role-nudge').onclick = () => setRole('both');
+
+/* ===== PRESENCE ===== */
+function onlineUsers() { const now = Date.now(); return S.presence.filter(u => now - ms(u.lastSeen) < 10 * 60000); }
+function watchPresence() {
+  const cutoff = Timestamp.fromMillis(Date.now() - 15 * 60000);
+  unsub.presence = onSnapshot(query(collection(db, 'users'), where('lastSeen', '>', cutoff)), snap => {
+    S.presence = docs(snap); S.presenceLoaded = true; renderPresence(); renderLobby();
+  }, err => console.warn(err));
+  setInterval(renderPresence, 30000);
+}
+function renderPresence() {
+  const on = onlineUsers();
+  $('presence').textContent = on.length + ' online, ' + on.filter(u => u.role !== 'venter').length + ' listening';
+  renderMajlis(on);
+}
+const SEAT_COLORS = ['#d9a441', '#c1502e', '#8a9a5b', '#c97b6a', '#b08a52', '#a3673f'];
+function seatColor(id) { let h = 0; for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0; return SEAT_COLORS[h % SEAT_COLORS.length]; }
+function renderMajlis(on) {
+  const box = $('majlis-seats');
+  if (!box) return;
+  if (!on.length) { box.replaceChildren(h('div', { class: 'majlis-empty', text: 'Empty for now. Be the first to sit by the fire.' })); return; }
+  const shown = on.slice(0, 10);
+  box.replaceChildren();
+  for (const u of shown) {
+    box.append(h('div', { class: 'seat' },
+      h('div', { class: 'seat-fig outfit-' + (u.outfit === 'abaya' || u.outfit === 'coat' ? u.outfit : 'kurta'), style: 'color:' + seatColor(u.id) },
+        h('span', { class: 'fig-head' }), h('span', { class: 'fig-body' })),
+      h('div', { class: 'seat-name', text: (u.id === S.uid ? 'You' : (u.name || 'Guest')) })));
+  }
+  if (on.length > shown.length) box.append(h('div', { class: 'seat seat-more', text: '+' + (on.length - shown.length) }));
+}
+
+/* ===== TALK (VENT AND LISTEN) ===== */
+const TOPICS = ['Family', 'Study or work', 'Relationships', 'Faith', 'Anxiety', 'Loneliness', 'Something else'];
+
+function watchWaiting() {
+  if (unsub.waiting) { unsub.waiting(); unsub.waiting = null; }
+  if (S.role === 'venter') { S.waiting = []; renderLobby(); return; }
+  unsub.waiting = onSnapshot(query(collection(db, 'vents'), where('status', '==', 'waiting'), limit(40)), snap => {
+    const prev = new Set(S.waiting.map(v => v.id));
+    S.waiting = docs(snap);
+    if (S.waitingLoaded) {
+      for (const v of S.waiting) if (!prev.has(v.id) && v.venterId !== S.uid && !S.ventId && !S.blocked.has(v.venterId)) toast(v.venterName + ' would like someone to listen');
+    }
+    S.waitingLoaded = true;
+    renderLobby();
+  }, err => console.warn(err));
+}
+
+function visibleWaiting() {
+  const now = Date.now();
+  const online = new Set(onlineUsers().map(u => u.id));
+  return S.waiting
+    .filter(v => v.venterId !== S.uid && !S.blocked.has(v.venterId) && now - ms(v.createdAt) < 3 * 3600e3 && (!S.presenceLoaded || online.has(v.venterId)))
+    .sort((a, b) => ms(a.createdAt) - ms(b.createdAt));
+}
+
+function renderLobby() {
+  const inS = !!S.ventId;
+  $('vent-lobby').hidden = inS;
+  $('vent-session').hidden = !inS;
+  if (inS) renderSession();
+  const canVent = S.role !== 'listener', canListen = S.role !== 'venter';
+  $('vent-ask').hidden = !canVent;
+  $('vent-list').hidden = !canListen;
+  $('role-nudge').hidden = S.role === 'both';
+  $('role-nudge').textContent = S.role === 'listener' ? "I'd like to vent too" : "I'd like to help others too";
+  const items = canListen ? visibleWaiting() : [];
+  const box = $('wait-items');
+  box.replaceChildren();
+  if (canListen) {
+    if (!items.length) box.append(h('p', { class: 'empty', text: 'No one is waiting right now. Thank you for being here.' }));
+    for (const v of items) {
+      box.append(h('div', { class: 'wait' },
+        h('div', { class: 'wait-top' }, h('b', { text: v.venterName }), h('span', { class: 'topic', text: v.topic }), h('span', { class: 'ago', text: ago(v.createdAt) })),
+        v.note ? h('p', { class: 'wait-note', text: v.note }) : null,
+        h('button', { class: 'btn btn-primary sm', type: 'button', text: 'Listen to ' + v.venterName, onclick: () => claim(v) })
+      ));
+    }
+  }
+  const n = canListen && !inS ? items.length : 0;
+  $('badge-talk').hidden = n === 0;
+  $('badge-talk').textContent = n;
+}
+
+async function claim(v) {
+  if (S.ventId) { toast('Finish your current session first.'); return; }
+  const ref = doc(db, 'vents', v.id);
+  try {
+    await runTransaction(db, async tx => {
+      const s = await tx.get(ref);
+      if (!s.exists() || s.data().status !== 'waiting') throw new Error('taken');
+      tx.update(ref, { status: 'active', listenerId: S.uid, listenerName: S.name, startedAt: serverTimestamp() });
+    });
+    await setDoc(userRef(), { activeVent: v.id }, { merge: true });
+    openSession(v.id);
+  } catch (e) {
+    toast(e.message === 'taken' ? 'Someone else is already listening to this one.' : 'Could not join. Try again.');
+  }
+}
+
+$('vent-go').onclick = async () => {
+  if (S.ventId) return;
+  const b = $('vent-go');
+  const note = clean($('vent-note').value.trim()).slice(0, 160);
+  b.disabled = true;
+  try {
+    const ref = await addDoc(collection(db, 'vents'), {
+      venterId: S.uid, venterName: S.name, topic: S.topic, note, status: 'waiting',
+      listenerId: null, listenerName: '', hearted: false,
+      createdAt: serverTimestamp(), startedAt: null, endedAt: null
+    });
+    await setDoc(userRef(), { activeVent: ref.id }, { merge: true });
+    $('vent-note').value = '';
+    openSession(ref.id);
+  } catch (e) { toast('Could not send your request. Try again.'); }
+  b.disabled = false;
+};
+
+function openSession(id) {
+  if (unsub.vent) unsub.vent();
+  if (unsub.ventMsgs) unsub.ventMsgs();
+  clearInterval(S.sessTimer);
+  S.ventId = id; S.vent = null;
+  unsub.vent = onSnapshot(doc(db, 'vents', id), snap => {
+    if (S.ventId !== id) return;
+    if (!snap.exists()) { endLocal(); toast('This session was closed.'); return; }
+    const prev = S.vent;
+    S.vent = snap.data({ serverTimestamps: 'estimate' });
+    if (prev && prev.status === 'waiting' && S.vent.status === 'active' && S.vent.venterId === S.uid) toast(S.vent.listenerName + ' joined to listen');
+    if (prev && prev.status !== 'ended' && S.vent.status === 'ended' && S.vent.endedBy !== S.uid) toast('The session has ended.');
+    renderSession();
+  }, err => { console.warn(err); endLocal(); });
+  unsub.ventMsgs = subscribeMessages(collection(db, 'vents', id, 'messages'), $('sess-msgs'), 'Say hello when you are ready.');
+  S.sessTimer = setInterval(tickSess, 20000);
+  renderLobby();
+}
+
+function endLocal() {
+  if (unsub.vent) unsub.vent();
+  if (unsub.ventMsgs) unsub.ventMsgs();
+  unsub.vent = unsub.ventMsgs = null;
+  clearInterval(S.sessTimer);
+  S.ventId = null; S.vent = null;
+  $('sess-msgs').replaceChildren();
+  renderLobby();
+}
+async function closeSession() {
+  endLocal();
+  try { await setDoc(userRef(), { activeVent: null }, { merge: true }); } catch (e) {}
+}
+
+function renderSession() {
+  const v = S.vent;
+  const title = $('sess-title');
+  if (!v) { title.textContent = 'Loading...'; return; }
+  const me = v.venterId === S.uid;
+  const other = me ? v.listenerName : v.venterName;
+  const st = v.status;
+  title.textContent = st === 'waiting' ? 'Waiting for a listener' : st === 'ended' ? 'Session ended' : me ? other + ' is listening' : 'You are listening to ' + other;
+  $('sess-sub').textContent = 'Topic: ' + v.topic;
+  $('sess-end').textContent = st === 'waiting' ? 'Cancel request' : st === 'ended' ? 'Close' : 'End session';
+  const heart = $('sess-heart');
+  heart.hidden = !(me && st !== 'waiting' && v.listenerId);
+  heart.disabled = !!v.hearted;
+  heart.textContent = v.hearted ? 'Thanks sent' : 'Say thank you';
+  const live = st === 'active';
+  $('sess-input').disabled = !live; $('sess-send').disabled = !live;
+  $('sess-input').placeholder = live ? 'Write a message' : st === 'waiting' ? 'You can write once a listener joins' : 'This session has ended';
+  const note = $('sess-note');
+  let text = '';
+  if (st === 'waiting') text = onlineUsers().filter(u => u.role !== 'venter' && u.id !== S.uid).length + ' listeners are online. You can browse other tabs, and we will tell you when someone joins.';
+  else if (st === 'active' && !me) text = 'Listen first. You do not need to fix everything. If they mention harming themselves, gently encourage them to contact emergency services or a helpline.';
+  else if (st === 'active') text = 'Share as much or as little as you like. You can end the session anytime.';
+  else if (st === 'ended') text = 'This session is over. Take a breath, you did well.';
+  note.hidden = !text; note.textContent = text;
+  tickSess();
+}
+function tickSess() {
+  const v = S.vent, t = $('sess-timer');
+  if (!v || v.status !== 'active') { t.textContent = ''; return; }
+  const m = Math.max(0, Math.floor((Date.now() - ms(v.startedAt)) / 60000));
+  t.textContent = m + ' min';
+  if (m >= 20) { const n = $('sess-note'); n.hidden = false; n.textContent = 'You have been talking for over 20 minutes. It is okay to wrap up gently or take a break.'; }
+}
+
+$('sess-end').onclick = async () => {
+  const v = S.vent;
+  if (!v || !S.ventId) return;
+  const ref = doc(db, 'vents', S.ventId);
+  if (v.status === 'ended') { closeSession(); return; }
+  if (v.status === 'waiting') { try { await deleteDoc(ref); } catch (e) { toast('Could not cancel. Try again.'); } return; }
+  if (!confirm('End this session for both of you?')) return;
+  try { await updateDoc(ref, { status: 'ended', endedAt: serverTimestamp(), endedBy: S.uid }); } catch (e) { toast('Could not end the session. Try again.'); }
+};
+$('sess-heart').onclick = async () => {
+  const v = S.vent;
+  if (!v || v.hearted || !v.listenerId) return;
+  try {
+    await updateDoc(doc(db, 'vents', S.ventId), { hearted: true });
+    await updateDoc(doc(db, 'users', v.listenerId), { hearts: increment(1) });
+    toast('Your thanks were sent.');
+  } catch (e) { toast('Could not send thanks. Try again.'); }
+};
+
+/* ===== MESSAGES (shared by all chats) ===== */
+function subscribeMessages(col, box, emptyText) {
+  box._first = true; box._empty = emptyText || 'No messages yet.'; box._last = [];
+  box.replaceChildren();
+  const q = query(col, orderBy('createdAt', 'desc'), limit(100));
+  return onSnapshot(q, snap => { renderMsgs(box, docs(snap).reverse()); }, err => {
+    console.warn(err);
+    box.replaceChildren(h('p', { class: 'empty', text: 'Could not load messages. Check your connection or the database rules.' }));
+  });
+}
+function renderMsgs(box, msgs) {
+  const near = box.scrollHeight - box.scrollTop - box.clientHeight < 140;
+  box._last = msgs;
+  box.replaceChildren();
+  const shown = msgs.filter(m => !S.blocked.has(m.uid));
+  if (!shown.length) box.append(h('p', { class: 'empty', text: box._empty }));
+  for (const m of shown) {
+    const mine = m.uid === S.uid;
+    box.append(h('div', { class: 'msg ' + (mine ? 'mine' : 'theirs') },
+      mine ? null : h('div', { class: 'msg-meta' },
+        h('span', { class: 'msg-name', text: m.name || 'Someone' }),
+        h('button', { class: 'msg-flag', type: 'button', text: 'Report', onclick: () => flagMenu(m) })),
+      h('div', { class: 'msg-text', text: m.text }),
+      h('div', { class: 'msg-time', text: fmtTime(m.createdAt) })));
+  }
+  if (box._first || near) { box.scrollTop = box.scrollHeight; if (box.clientHeight > 0) box._first = false; }
+}
+let lastSend = 0;
+async function sendTo(col, input) {
+  const raw = input.value.trim();
+  if (!raw) return;
+  if (Date.now() - lastSend < 900) { toast('Slow down a little.'); return; }
+  lastSend = Date.now();
+  const text = clean(raw).slice(0, 500);
+  input.value = ''; input.style.height = 'auto';
+  try {
+    await addDoc(col, { uid: S.uid, name: S.name, text, createdAt: serverTimestamp() });
+  } catch (e) { input.value = raw; toast('Message not sent. Check your connection.'); return; }
+  if (CRISIS.test(raw)) showCrisis();
+}
+function wireComposer(input, btn, fn) {
+  const go = () => { if (!input.disabled) fn(); };
+  btn.onclick = go;
+  input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); go(); } });
+  input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 120) + 'px'; });
+}
+wireComposer($('sess-input'), $('sess-send'), () => { if (S.ventId) sendTo(collection(db, 'vents', S.ventId, 'messages'), $('sess-input')); });
+wireComposer($('chat-input'), $('chat-send'), () => sendTo(collection(db, 'chatRooms', S.croom, 'messages'), $('chat-input')));
+wireComposer($('watch-input'), $('watch-send'), () => { if (W.id) sendTo(collection(db, 'watchRooms', W.id, 'messages'), $('watch-input')); });
+
+function flagMenu(m) {
+  modal('Message from ' + (m.name || 'someone'), [
+    h('p', { class: 'muted', text: '"' + String(m.text).slice(0, 120) + '"' }),
+    h('button', { class: 'btn btn-ghost', type: 'button', text: 'Report this message', onclick: async () => {
+      try {
+        await addDoc(collection(db, 'reports'), { reporterId: S.uid, reportedId: m.uid, reportedName: m.name || '', text: String(m.text).slice(0, 500), where: S.tab, createdAt: serverTimestamp() });
+        toast('Reported. Thank you for keeping Malaz safe.');
+      } catch (e) { toast('Could not send the report.'); }
+      closeModal();
+    } }),
+    h('button', { class: 'btn btn-ghost', type: 'button', text: 'Block this person', onclick: () => {
+      S.blocked.add(m.uid); store.set('blocked', [...S.blocked]);
+      document.querySelectorAll('.msgs').forEach(b => { if (b._last) renderMsgs(b, b._last); });
+      renderLobby();
+      toast("Blocked. You won't see their messages.");
+      closeModal();
+    } }),
+    h('button', { class: 'btn btn-ghost', type: 'button', text: 'Cancel', onclick: closeModal })
+  ]);
+}
+
+/* ===== CHAT ROOMS ===== */
+const ROOMS = [
+  { id: 'lounge', name: 'Lounge', hint: 'Say salaam and chat about anything. Be kind.' },
+  { id: 'faith', name: 'Faith and reminders', hint: 'Share reminders, duas and encouragement.' },
+  { id: 'study', name: 'Study and work', hint: 'Study buddies and focus company.' },
+  { id: 'night', name: 'Late night', hint: "For when you can't sleep." }
+];
+function mountChat() {
+  const tabs = $('roomtabs');
+  tabs.replaceChildren(...ROOMS.map(r => h('button', { class: 'chip' + (r.id === S.croom ? ' sel' : ''), type: 'button', text: r.name, onclick: () => { S.croom = r.id; unmountChat(); mountChat(); } })));
+  $('roomhint').textContent = ROOMS.find(r => r.id === S.croom).hint + " Please don't share personal details.";
+  if (!unsub.chat) unsub.chat = subscribeMessages(collection(db, 'chatRooms', S.croom, 'messages'), $('chat-msgs'), 'Be the first to say salaam.');
+}
+function unmountChat() { if (unsub.chat) { unsub.chat(); unsub.chat = null; } }
+
+/* ===== WATCH TOGETHER ===== */
+const W = { id: null, player: null, ready: false, timer: null, unRoom: null, unMsgs: null, vid: null, lastT: 0, lastTick: 0, lastPlaying: false, lastPush: 0 };
+let ytPromise = null;
+function loadYT() {
+  if (ytPromise) return ytPromise;
+  ytPromise = new Promise((res, rej) => {
+    if (window.YT && window.YT.Player) { res(); return; }
+    window.onYouTubeIframeAPIReady = () => res();
+    const s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    s.onerror = () => { ytPromise = null; rej(new Error('yt')); };
+    document.head.append(s);
+  });
+  return ytPromise;
+}
+function ytId(u) {
+  try {
+    u = u.trim();
+    if (/^[\w-]{11}$/.test(u)) return u;
+    const x = new URL(/^https?:/i.test(u) ? u : 'https://' + u);
+    const host = x.hostname.replace(/^www\.|^m\./, '');
+    let id = null;
+    if (host === 'youtu.be') id = x.pathname.slice(1).split('/')[0];
+    else if (host.endsWith('youtube.com')) {
+      if (x.pathname === '/watch') id = x.searchParams.get('v');
+      else { const m = x.pathname.match(/^\/(embed|shorts|live|v)\/([\w-]{11})/); if (m) id = m[2]; }
+    }
+    return id && /^[\w-]{11}$/.test(id) ? id : null;
+  } catch (e) { return null; }
+}
+
+function mountWatchLobby() {
+  if (!unsub.rooms) {
+    unsub.rooms = onSnapshot(query(collection(db, 'watchRooms'), orderBy('createdAt', 'desc'), limit(20)), snap => {
+      S.rooms = docs(snap); renderRooms();
+    }, err => console.warn(err));
+  }
+  renderRooms();
+}
+function unmountWatchLobby() { if (unsub.rooms) { unsub.rooms(); unsub.rooms = null; } }
+function renderRooms() {
+  const box = $('rooms');
+  box.replaceChildren();
+  const list = S.rooms.filter(r => Date.now() - ms(r.createdAt) < 12 * 3600e3);
+  if (!list.length) box.append(h('p', { class: 'empty', text: 'No rooms yet. Create one and invite a friend.' }));
+  for (const r of list) {
+    box.append(h('div', { class: 'roomcard' },
+      h('div', {}, h('b', { text: r.title }), h('span', { class: 'fine', text: 'Hosted by ' + r.hostName })),
+      h('button', { class: 'btn btn-primary sm', type: 'button', text: 'Join', onclick: () => joinRoom(r.id) })));
+  }
+}
+$('room-new').onclick = () => {
+  const title = h('input', { placeholder: 'Room name', maxlength: '40' });
+  const link = h('input', { placeholder: 'Paste a YouTube link', inputmode: 'url' });
+  modal('Create a watch room', [
+    title, link,
+    h('p', { class: 'fine', text: 'Only share videos that are public domain, Creative Commons, or that you have permission to share.' }),
+    h('button', { class: 'btn btn-primary', type: 'button', text: 'Create room', onclick: async () => {
+      const vid = ytId(link.value);
+      const name = clean(title.value.trim()).slice(0, 40) || S.name + "'s room";
+      if (!vid) { toast('That does not look like a YouTube link.'); return; }
+      try {
+        const ref = await addDoc(collection(db, 'watchRooms'), { title: name, hostId: S.uid, hostName: S.name, videoId: vid, state: 'paused', time: 0, updatedAt: serverTimestamp(), createdAt: serverTimestamp() });
+        closeModal(); joinRoom(ref.id);
+      } catch (e) { toast('Could not create the room. Try again.'); }
+    } }),
+    h('button', { class: 'btn btn-ghost', type: 'button', text: 'Cancel', onclick: closeModal })
+  ]);
+};
+
+async function joinRoom(id) {
+  leaveRoom(true);
+  W.id = id;
+  $('watch-lobby').hidden = true; $('watch-room').hidden = false;
+  S.bgmWas = Music.playing; pauseMusic();
+  try { await loadYT(); } catch (e) { toast('Could not load the video player.'); leaveRoom(); return; }
+  if (W.id !== id) return;
+  W.unRoom = onSnapshot(doc(db, 'watchRooms', id), snap => {
+    if (W.id !== id) return;
+    if (!snap.exists()) { toast('This room was closed.'); leaveRoom(); return; }
+    S.room = snap.data({ serverTimestamps: 'estimate' });
+    const host = S.room.hostId === S.uid;
+    if (!W.player) makePlayer(host); else if (!host) applyRoom();
+    updateRoomUI(host);
+  }, err => { console.warn(err); toast('Could not open the room.'); leaveRoom(); });
+  W.unMsgs = subscribeMessages(collection(db, 'watchRooms', id, 'messages'), $('watch-msgs'), 'Say hello to the room.');
+}
+function makePlayer(host) {
+  $('ytwrap').replaceChildren(h('div', { id: 'ytp' }));
+  const vars = { playsinline: 1, rel: 0, modestbranding: 1, controls: host ? 1 : 0, disablekb: host ? 0 : 1 };
+  if (location.protocol.startsWith('http')) vars.origin = location.origin;
+  W.player = new YT.Player('ytp', {
+    videoId: S.room.videoId, width: '100%', height: '100%', playerVars: vars,
+    events: { onReady: () => { W.ready = true; W.vid = S.room.videoId; if (host) startHostSync(); else applyRoom(); } }
+  });
+}
+function updateRoomUI(host) {
+  const r = S.room;
+  $('room-title').textContent = r.title;
+  $('room-sub').textContent = host ? 'You are hosting' : 'Hosted by ' + r.hostName;
+  $('room-change').hidden = !host; $('room-close').hidden = !host;
+  $('shield').hidden = host;
+  $('w-sync').hidden = host;
+  $('w-note').textContent = host ? 'You control play, pause and seek for everyone.' : 'The host controls the video. Tap Sync if you drift.';
+}
+function applyRoom() {
+  const d = S.room;
+  if (!W.ready || !d || !W.player) return;
+  const ts = d.updatedAt && d.updatedAt.toMillis ? d.updatedAt.toMillis() : Date.now();
+  const playing = d.state === 'playing';
+  const target = (d.time || 0) + (playing ? Math.max(0, (Date.now() - ts) / 1000) : 0);
+  if (d.videoId !== W.vid) {
+    W.vid = d.videoId;
+    W.player.loadVideoById({ videoId: d.videoId, startSeconds: target });
+    if (!playing) setTimeout(() => { if (W.player) W.player.pauseVideo(); }, 500);
+    return;
+  }
+  const cur = W.player.getCurrentTime ? W.player.getCurrentTime() : 0;
+  if (Math.abs(cur - target) > 2.5) W.player.seekTo(target, true);
+  if (playing) {
+    W.player.playVideo();
+    setTimeout(() => { if (W.player && W.player.getPlayerState && ![1, 3].includes(W.player.getPlayerState())) toast('Tap Sync to start the video.'); }, 2500);
+  } else W.player.pauseVideo();
+}
+function startHostSync() {
+  clearInterval(W.timer);
+  W.lastTick = Date.now(); W.lastT = 0; W.lastPlaying = false; W.lastPush = 0;
+  W.timer = setInterval(() => {
+    const p = W.player;
+    if (!W.ready || !p || !p.getPlayerState || !W.id) return;
+    const st = p.getPlayerState();
+    const playing = st === 3 ? W.lastPlaying : st === 1;
+    const now = Date.now(), dt = (now - W.lastTick) / 1000, t = p.getCurrentTime();
+    const expected = W.lastT + (W.lastPlaying ? dt : 0);
+    const jumped = st !== 3 && Math.abs(t - expected) > 1.5;
+    const changed = playing !== W.lastPlaying;
+    const stale = playing && now - W.lastPush > 30000;
+    if (jumped || changed || stale) {
+      updateDoc(doc(db, 'watchRooms', W.id), { state: playing ? 'playing' : 'paused', time: t, updatedAt: serverTimestamp() }).catch(() => {});
+      W.lastPush = now;
+    }
+    W.lastT = t; W.lastTick = now; W.lastPlaying = playing;
+  }, 1000);
+}
+function leaveRoom(silent) {
+  clearInterval(W.timer);
+  if (W.unRoom) W.unRoom();
+  if (W.unMsgs) W.unMsgs();
+  W.unRoom = W.unMsgs = null;
+  try { if (W.player) W.player.destroy(); } catch (e) {}
+  W.player = null; W.ready = false; W.vid = null;
+  const had = W.id;
+  W.id = null; S.room = null;
+  $('ytwrap').replaceChildren();
+  $('watch-room').hidden = true; $('watch-lobby').hidden = false;
+  if (had && !silent && S.bgmWas) { startMusic(); S.bgmWas = false; }
+}
+$('room-leave').onclick = () => leaveRoom();
+$('room-close').onclick = async () => {
+  if (!W.id || !confirm('Close this room for everyone?')) return;
+  try { await deleteDoc(doc(db, 'watchRooms', W.id)); } catch (e) { toast('Could not close the room.'); }
+};
+$('room-change').onclick = () => {
+  const link = h('input', { placeholder: 'Paste a YouTube link', inputmode: 'url' });
+  modal('Change video', [
+    link,
+    h('button', { class: 'btn btn-primary', type: 'button', text: 'Change video', onclick: async () => {
+      const vid = ytId(link.value);
+      if (!vid) { toast('That does not look like a YouTube link.'); return; }
+      try {
+        await updateDoc(doc(db, 'watchRooms', W.id), { videoId: vid, time: 0, state: 'paused', updatedAt: serverTimestamp() });
+        if (W.player) W.player.cueVideoById(vid);
+        closeModal();
+      } catch (e) { toast('Could not change the video.'); }
+    } }),
+    h('button', { class: 'btn btn-ghost', type: 'button', text: 'Cancel', onclick: closeModal })
+  ]);
+};
+$('w-sync').onclick = () => { if (S.room) { W.vid = null; applyRoom(); } };
+$('w-mute').onclick = () => {
+  if (!W.player) return;
+  if (W.player.isMuted()) { W.player.unMute(); $('w-mute').textContent = 'Mute'; } else { W.player.mute(); $('w-mute').textContent = 'Unmute'; }
+};
+$('w-full').onclick = () => {
+  const f = W.player && W.player.getIframe && W.player.getIframe();
+  const el = $('ytwrap').parentElement;
+  const t = el.requestFullscreen ? el : f;
+  if (t && t.requestFullscreen) t.requestFullscreen().catch(() => toast('Full screen is not available here.'));
+};
+
+/* ===== CALM ===== */
+const DHIKR = [['SubhanAllah', 'سبحان الله'], ['Alhamdulillah', 'الحمد لله'], ['Allahu Akbar', 'الله أكبر'], ['Astaghfirullah', 'أستغفر الله'], ['La ilaha illallah', 'لا إله إلا الله']];
+const dh = { i: 0, n: 0 };
+function renderDhikr() {
+  $('dh-ar').textContent = DHIKR[dh.i][1];
+  $('dh-btn').textContent = dh.n;
+  $('dh-info').textContent = DHIKR[dh.i][0] + ': ' + (dh.n % 33) + ' of 33, ' + Math.floor(dh.n / 33) + ' rounds done';
+  document.querySelectorAll('#dh-chips .chip').forEach((c, i) => c.classList.toggle('sel', i === dh.i));
+}
+let bTimer = null, bStart = 0, bLast = '';
+function buildStatic() {
+  const tp = $('topics');
+  tp.replaceChildren(...TOPICS.map(t => h('button', { class: 'chip' + (t === S.topic ? ' sel' : ''), type: 'button', text: t, onclick: () => {
+    S.topic = t; tp.querySelectorAll('.chip').forEach(c => c.classList.toggle('sel', c.textContent === t));
+  } })));
+  document.querySelectorAll('.mood').forEach(b => b.onclick = () => {
+    document.querySelectorAll('.mood').forEach(x => x.classList.toggle('sel', x === b));
+    const k = b.dataset.mood, box = $('moodreply');
+    box.replaceChildren(h('span', { text: MOOD[k] }));
+    if (k === 'low' || k === 'heavy') box.append(h('button', { class: 'btn btn-ghost sm', type: 'button', text: 'Talk to a listener', onclick: () => showTab('vent') }));
+  });
+  renderReminder();
+  renderMajlis(onlineUsers());
+  $('dh-chips').replaceChildren(...DHIKR.map((d, i) => h('button', { class: 'chip', type: 'button', text: d[0], onclick: () => { dh.i = i; dh.n = 0; renderDhikr(); } })));
+  renderDhikr();
+}
+$('dh-btn').onclick = () => {
+  dh.n++; renderDhikr();
+  if (dh.n % 33 === 0 && navigator.vibrate) navigator.vibrate(60);
+};
+$('dh-reset').onclick = () => { dh.n = 0; renderDhikr(); };
+$('bstart').onclick = () => {
+  if (bTimer) {
+    clearInterval(bTimer); bTimer = null; bLast = '';
+    $('bc').classList.remove('run'); $('bt').textContent = 'Ready when you are'; $('bstart').textContent = 'Start breathing';
+    return;
+  }
+  bStart = Date.now();
+  $('bc').classList.add('run'); $('bstart').textContent = 'Stop';
+  bTimer = setInterval(() => {
+    const t = (Date.now() - bStart) % 12000;
+    const w = t < 4000 ? 'Breathe in' : t < 6000 ? 'Hold' : 'Breathe out';
+    if (w !== bLast) { bLast = w; $('bt').textContent = w; }
+  }, 200);
+};
+</script>
+</body>
+</html>
