@@ -171,7 +171,12 @@ h3{font-size:1.1rem;font-weight:600}
   box-shadow:inset 0 0 0 5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.35)}
 .majlis-rug::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(45deg);width:24px;height:24px;background:var(--lamp);box-shadow:0 0 0 2px #661414,0 0 10px rgba(217,164,65,.5)}
 .majlis-rug::after{content:"";position:absolute;inset:7px;border:1px dashed rgba(217,164,65,.55);border-radius:6px;pointer-events:none}
-.majlis-seats{position:relative;z-index:2;display:flex;justify-content:center;align-items:flex-end;gap:14px;flex-wrap:wrap;padding-top:132px}
+.majlis-seats{position:absolute;left:0;right:0;bottom:14px;height:72px;z-index:2}
+.seat-slot{position:absolute;bottom:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;width:46px;transition:left .3s ease}
+.seat-empty{width:26px;height:15px;border:1.5px dashed rgba(217,164,65,.75);border-radius:9px;background:rgba(10,6,4,.55);box-shadow:0 2px 5px rgba(0,0,0,.35);animation:seatPulse 2.6s ease-in-out infinite;cursor:pointer}
+@keyframes seatPulse{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+.seat-slot .seat-fig{cursor:pointer;animation:popIn .4s cubic-bezier(.2,.7,.3,1) both,sway 4.6s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-1.6deg)}50%{transform:rotate(1.6deg)}}
 .seat{display:flex;flex-direction:column;align-items:center;gap:4px;width:44px}
 .seat-fig{position:relative;width:34px;height:44px;color:#d9a441}
 .fig-head{position:absolute;left:50%;top:0;transform:translateX(-50%);width:18px;height:18px;border-radius:50%;background:currentColor;z-index:2;box-shadow:0 2px 4px rgba(0,0,0,.35)}
@@ -316,10 +321,7 @@ noscript{display:block;padding:40px;text-align:center}
     <p class="tagline">A safe haven to vent, listen and be heard.</p>
     <div class="field">
       <label for="nick">Your nickname</label>
-      <div class="row">
-        <input id="nick" maxlength="20" autocomplete="off" placeholder="Pick any name you like">
-        <button id="dice" class="dice" type="button" aria-label="Suggest a random nickname">🎲</button>
-      </div>
+      <input id="nick" maxlength="20" autocomplete="off" placeholder="Pick any name you like">
     </div>
     <fieldset class="roles">
       <legend>I'm here to</legend>
@@ -707,9 +709,8 @@ let selOutfit = store.get('outfit', 'kurta');
 function paintOutfits() { document.querySelectorAll('.outfit').forEach(b => b.classList.toggle('sel', b.dataset.outfit === selOutfit)); }
 paintOutfits();
 document.querySelectorAll('.outfit').forEach(b => b.onclick = () => { selOutfit = b.dataset.outfit; paintOutfits(); });
-$('nick').value = store.get('name', '') || randomName();
+$('nick').value = store.get('name', '');
 $('agree').checked = store.get('agreed', false);
-$('dice').onclick = () => { $('nick').value = randomName(); };
 
 $('enter').onclick = async () => {
   const btn = $('enter'), msg = $('gate-msg');
@@ -830,20 +831,40 @@ function renderPresence() {
 }
 const SEAT_COLORS = ['#d9a441', '#c1502e', '#8a9a5b', '#c97b6a', '#b08a52', '#a3673f'];
 const VALID_OUTFITS = ['kurta', 'abaya', 'coat', 'thobe', 'shemagh', 'bisht'];
+const SEAT_POS = [7, 19, 31, 43, 57, 69, 81, 93];
 function seatColor(id) { let h = 0; for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0; return SEAT_COLORS[h % SEAT_COLORS.length]; }
+async function sitSeat(i) {
+  if (!S.uid) return;
+  try { await setDoc(userRef(), { seat: i }, { merge: true }); }
+  catch (e) { toast('Could not sit down. Try again.'); }
+}
+async function standUp() {
+  if (!S.uid) return;
+  try { await setDoc(userRef(), { seat: null }, { merge: true }); } catch (e) {}
+}
+function tapSeat(u) {
+  if (u.id === S.uid) { standUp(); return; }
+  toast((u.name || 'Guest') + (u.role === 'venter' ? ', here to vent' : u.role === 'listener' ? ', here to listen' : ', here to vent or listen'));
+}
 function renderMajlis(on) {
   const box = $('majlis-seats');
   if (!box) return;
-  if (!on.length) { box.replaceChildren(h('div', { class: 'majlis-empty', text: 'Empty for now. Be the first to sit by the fire.' })); return; }
-  const shown = on.slice(0, 10);
+  const bySeat = {};
+  for (const u of on) { if (Number.isInteger(u.seat) && u.seat >= 0 && u.seat < SEAT_POS.length && !bySeat[u.seat]) bySeat[u.seat] = u; }
   box.replaceChildren();
-  for (const u of shown) {
-    box.append(h('div', { class: 'seat' },
-      h('div', { class: 'seat-fig outfit-' + (VALID_OUTFITS.includes(u.outfit) ? u.outfit : 'kurta'), style: 'color:' + seatColor(u.id) },
-        h('span', { class: 'fig-head' }), h('span', { class: 'fig-body' })),
-      h('div', { class: 'seat-name', text: (u.id === S.uid ? 'You' : (u.name || 'Guest')) })));
-  }
-  if (on.length > shown.length) box.append(h('div', { class: 'seat seat-more', text: '+' + (on.length - shown.length) }));
+  SEAT_POS.forEach((pct, i) => {
+    const u = bySeat[i];
+    const slot = h('div', { class: 'seat-slot', style: 'left:' + pct + '%' });
+    if (u) {
+      slot.append(
+        h('div', { class: 'seat-fig outfit-' + (VALID_OUTFITS.includes(u.outfit) ? u.outfit : 'kurta'), style: 'color:' + seatColor(u.id), onclick: () => tapSeat(u) },
+          h('span', { class: 'fig-head' }), h('span', { class: 'fig-body' })),
+        h('div', { class: 'seat-name', text: (u.id === S.uid ? 'You' : (u.name || 'Guest')) }));
+    } else {
+      slot.append(h('button', { class: 'seat-empty', type: 'button', 'aria-label': 'Sit here', onclick: () => sitSeat(i) }));
+    }
+    box.append(slot);
+  });
 }
 
 /* ===== TALK (VENT AND LISTEN) ===== */
@@ -998,4 +1019,475 @@ function renderSession() {
 }
 function tickSess() {
   const v = S.vent, t = $('sess-timer');
-  if (!v || v.status 
+  if (!v || v.status !== 'active') { t.textContent = ''; return; }
+  const m = Math.max(0, Math.floor((Date.now() - ms(v.startedAt)) / 60000));
+  t.textContent = m + ' min';
+  if (m >= 20) { const n = $('sess-note'); n.hidden = false; n.textContent = 'You have been talking for over 20 minutes. It is okay to wrap up gently or take a break.'; }
+}
+
+$('sess-end').onclick = async () => {
+  const v = S.vent;
+  if (!v || !S.ventId) return;
+  const ref = doc(db, 'vents', S.ventId);
+  if (v.status === 'ended') { closeSession(); return; }
+  if (v.status === 'waiting') { try { await deleteDoc(ref); } catch (e) { toast('Could not cancel. Try again.'); } return; }
+  if (!confirm('End this session for both of you?')) return;
+  if (Call.state !== 'idle') endCall();
+  try { await updateDoc(ref, { status: 'ended', endedAt: serverTimestamp(), endedBy: S.uid }); } catch (e) { toast('Could not end the session. Try again.'); }
+};
+$('sess-heart').onclick = async () => {
+  const v = S.vent;
+  if (!v || v.hearted || !v.listenerId) return;
+  try {
+    await updateDoc(doc(db, 'vents', S.ventId), { hearted: true });
+    await updateDoc(doc(db, 'users', v.listenerId), { hearts: increment(1) });
+    toast('Your thanks were sent.');
+  } catch (e) { toast('Could not send thanks. Try again.'); }
+};
+
+/* ===== VOICE CALL (WebRTC, signaled through Firestore) ===== */
+const Call = { pc: null, stream: null, ventId: null, role: null, seen: new Set(), state: 'idle', muted: false, pendingOffer: null, answered: false };
+function callDocRef(id) { return doc(db, 'vents', id, 'meta', 'call'); }
+function newPC() {
+  const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+  pc.onicecandidate = e => { if (e.candidate) pushCandidate(e.candidate); };
+  pc.ontrack = e => { $('callAudio').srcObject = e.streams[0]; };
+  pc.onconnectionstatechange = () => { if (pc.connectionState === 'failed') { toast('The call connection failed.'); endCall(); } };
+  return pc;
+}
+async function pushCandidate(candidate) {
+  if (!Call.ventId || !Call.role) return;
+  const field = Call.role === 'caller' ? 'callerCandidates' : 'calleeCandidates';
+  try { await updateDoc(callDocRef(Call.ventId), { [field]: arrayUnion(candidate.toJSON()) }); } catch (e) {}
+}
+async function getMic() {
+  try { return await navigator.mediaDevices.getUserMedia({ audio: true }); }
+  catch (e) {
+    toast(e && e.name === 'NotAllowedError' ? 'Microphone access was blocked. Check your browser permissions.' : 'Could not access the microphone.');
+    return null;
+  }
+}
+async function startCall() {
+  if (!S.ventId || Call.pc) return;
+  const stream = await getMic();
+  if (!stream) return;
+  Call.stream = stream; Call.ventId = S.ventId; Call.role = 'caller'; Call.seen = new Set(); Call.answered = false;
+  Call.pc = newPC();
+  stream.getTracks().forEach(t => Call.pc.addTrack(t, stream));
+  const offer = await Call.pc.createOffer();
+  await Call.pc.setLocalDescription(offer);
+  try {
+    await setDoc(callDocRef(S.ventId), { offer: { type: offer.type, sdp: offer.sdp }, answer: null, callerId: S.uid, status: 'ringing', callerCandidates: [], calleeCandidates: [] });
+  } catch (e) { toast('Could not start the call.'); teardownCall(); return; }
+  Call.state = 'outgoing'; renderCallUI();
+  watchCall(S.ventId);
+}
+async function acceptCall() {
+  if (!S.ventId || !Call.pendingOffer) return;
+  const offer = Call.pendingOffer;
+  const stream = await getMic();
+  if (!stream) return;
+  Call.stream = stream; Call.ventId = S.ventId; Call.role = 'callee'; Call.seen = new Set();
+  Call.pc = newPC();
+  stream.getTracks().forEach(t => Call.pc.addTrack(t, stream));
+  await Call.pc.setRemoteDescription(new RTCSessionDescription(offer));
+  const answer = await Call.pc.createAnswer();
+  await Call.pc.setLocalDescription(answer);
+  try {
+    await updateDoc(callDocRef(S.ventId), { answer: { type: answer.type, sdp: answer.sdp }, status: 'active' });
+  } catch (e) { toast('Could not join the call.'); teardownCall(); return; }
+  Call.state = 'active'; renderCallUI();
+}
+async function declineCall() {
+  if (S.ventId) { try { await deleteDoc(callDocRef(S.ventId)); } catch (e) {} }
+  Call.pendingOffer = null; Call.state = 'idle'; renderCallUI();
+}
+async function endCall() {
+  const id = Call.ventId || S.ventId;
+  teardownCall();
+  if (id) { try { await deleteDoc(callDocRef(id)); } catch (e) {} }
+}
+function toggleMute() {
+  if (!Call.stream) return;
+  Call.muted = !Call.muted;
+  Call.stream.getAudioTracks().forEach(t => t.enabled = !Call.muted);
+  renderCallUI();
+}
+function teardownCall() {
+  if (Call.pc) { try { Call.pc.close(); } catch (e) {} }
+  if (Call.stream) Call.stream.getTracks().forEach(t => t.stop());
+  $('callAudio').srcObject = null;
+  Call.pc = null; Call.stream = null; Call.role = null; Call.ventId = null; Call.muted = false; Call.pendingOffer = null; Call.state = 'idle';
+  renderCallUI();
+}
+function watchCall(id) {
+  if (unsub.call) { unsub.call(); unsub.call = null; }
+  unsub.call = onSnapshot(callDocRef(id), async snap => {
+    if (!snap.exists()) {
+      if (Call.state !== 'idle') { const wasActive = Call.state === 'active' || Call.state === 'outgoing'; teardownCall(); if (wasActive) toast('The call ended.'); }
+      return;
+    }
+    const d = snap.data();
+    if (d.status === 'ringing' && d.callerId !== S.uid && !Call.pc) { Call.state = 'incoming'; Call.pendingOffer = d.offer; renderCallUI(); return; }
+    if (Call.pc && Call.role === 'caller' && d.answer && !Call.answered) {
+      Call.answered = true;
+      try { await Call.pc.setRemoteDescription(new RTCSessionDescription(d.answer)); } catch (e) {}
+    }
+    if (Call.pc) {
+      const list = Call.role === 'caller' ? (d.calleeCandidates || []) : (d.callerCandidates || []);
+      for (const c of list) {
+        const k = JSON.stringify(c);
+        if (!Call.seen.has(k)) { Call.seen.add(k); try { await Call.pc.addIceCandidate(new RTCIceCandidate(c)); } catch (e) {} }
+      }
+    }
+    if (d.status === 'active' && Call.pc) Call.state = 'active';
+    renderCallUI();
+  }, () => {});
+}
+function renderCallUI() {
+  const bar = $('call-banner');
+  const callBtn = $('sess-call');
+  callBtn.hidden = !(S.vent && S.vent.status === 'active' && Call.state === 'idle');
+  if (Call.state === 'idle') { bar.hidden = true; return; }
+  bar.hidden = false;
+  if (Call.state === 'incoming') {
+    bar.replaceChildren(
+      h('span', { text: 'Incoming voice call' }),
+      h('button', { class: 'chip sel', type: 'button', text: 'Accept', onclick: acceptCall }),
+      h('button', { class: 'chip danger', type: 'button', text: 'Decline', onclick: declineCall }));
+  } else if (Call.state === 'outgoing') {
+    bar.replaceChildren(h('span', { text: 'Calling...' }), h('button', { class: 'chip danger', type: 'button', text: 'Cancel', onclick: endCall }));
+  } else if (Call.state === 'active') {
+    bar.replaceChildren(
+      h('span', { text: 'Voice call connected' }),
+      h('button', { class: 'chip', type: 'button', text: Call.muted ? 'Unmute' : 'Mute', onclick: toggleMute }),
+      h('button', { class: 'chip danger', type: 'button', text: 'End call', onclick: endCall }));
+  }
+}
+$('sess-call').onclick = startCall;
+
+/* ===== MESSAGES (shared by all chats) ===== */
+function subscribeMessages(col, box, emptyText) {
+  box._first = true; box._empty = emptyText || 'No messages yet.'; box._last = [];
+  box.replaceChildren();
+  const q = query(col, orderBy('createdAt', 'desc'), limit(100));
+  return onSnapshot(q, snap => { renderMsgs(box, docs(snap).reverse()); }, err => {
+    console.warn(err);
+    box.replaceChildren(h('p', { class: 'empty', text: 'Could not load messages. Check your connection or the database rules.' }));
+  });
+}
+function renderMsgs(box, msgs) {
+  const near = box.scrollHeight - box.scrollTop - box.clientHeight < 140;
+  box._last = msgs;
+  box.replaceChildren();
+  const shown = msgs.filter(m => !S.blocked.has(m.uid));
+  if (!shown.length) box.append(h('p', { class: 'empty', text: box._empty }));
+  for (const m of shown) {
+    const mine = m.uid === S.uid;
+    box.append(h('div', { class: 'msg ' + (mine ? 'mine' : 'theirs') },
+      mine ? null : h('div', { class: 'msg-meta' },
+        h('span', { class: 'msg-name', text: m.name || 'Someone' }),
+        h('button', { class: 'msg-flag', type: 'button', text: 'Report', onclick: () => flagMenu(m) })),
+      h('div', { class: 'msg-text', text: m.text }),
+      h('div', { class: 'msg-time', text: fmtTime(m.createdAt) })));
+  }
+  if (box._first || near) { box.scrollTop = box.scrollHeight; if (box.clientHeight > 0) box._first = false; }
+}
+let lastSend = 0;
+async function sendTo(col, input) {
+  const raw = input.value.trim();
+  if (!raw) return;
+  if (Date.now() - lastSend < 900) { toast('Slow down a little.'); return; }
+  lastSend = Date.now();
+  const text = clean(raw).slice(0, 500);
+  input.value = ''; input.style.height = 'auto';
+  try {
+    await addDoc(col, { uid: S.uid, name: S.name, text, createdAt: serverTimestamp() });
+  } catch (e) { input.value = raw; toast('Message not sent. Check your connection.'); return; }
+  if (CRISIS.test(raw)) showCrisis();
+}
+function wireComposer(input, btn, fn) {
+  const go = () => { if (!input.disabled) fn(); };
+  btn.onclick = go;
+  input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); go(); } });
+  input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 120) + 'px'; });
+}
+wireComposer($('sess-input'), $('sess-send'), () => { if (S.ventId) sendTo(collection(db, 'vents', S.ventId, 'messages'), $('sess-input')); });
+wireComposer($('chat-input'), $('chat-send'), () => sendTo(collection(db, 'chatRooms', S.croom, 'messages'), $('chat-input')));
+wireComposer($('watch-input'), $('watch-send'), () => { if (W.id) sendTo(collection(db, 'watchRooms', W.id, 'messages'), $('watch-input')); });
+
+function flagMenu(m) {
+  modal('Message from ' + (m.name || 'someone'), [
+    h('p', { class: 'muted', text: '"' + String(m.text).slice(0, 120) + '"' }),
+    h('button', { class: 'btn btn-ghost', type: 'button', text: 'Report this message', onclick: async () => {
+      try {
+        await addDoc(collection(db, 'reports'), { reporterId: S.uid, reportedId: m.uid, reportedName: m.name || '', text: String(m.text).slice(0, 500), where: S.tab, createdAt: serverTimestamp() });
+        toast('Reported. Thank you for keeping Malaz safe.');
+      } catch (e) { toast('Could not send the report.'); }
+      closeModal();
+    } }),
+    h('button', { class: 'btn btn-ghost', type: 'button', text: 'Block this person', onclick: () => {
+      S.blocked.add(m.uid); store.set('blocked', [...S.blocked]);
+      document.querySelectorAll('.msgs').forEach(b => { if (b._last) renderMsgs(b, b._last); });
+      renderLobby();
+      toast("Blocked. You won't see their messages.");
+      closeModal();
+    } }),
+    h('button', { class: 'btn btn-ghost', type: 'button', text: 'Cancel', onclick: closeModal })
+  ]);
+}
+
+/* ===== CHAT ROOMS ===== */
+const ROOMS = [
+  { id: 'lounge', name: 'Lounge', hint: 'Say salaam and chat about anything. Be kind.' },
+  { id: 'faith', name: 'Faith and reminders', hint: 'Share reminders, duas and encouragement.' },
+  { id: 'study', name: 'Study and work', hint: 'Study buddies and focus company.' },
+  { id: 'night', name: 'Late night', hint: "For when you can't sleep." }
+];
+function mountChat() {
+  const tabs = $('roomtabs');
+  tabs.replaceChildren(...ROOMS.map(r => h('button', { class: 'chip' + (r.id === S.croom ? ' sel' : ''), type: 'button', text: r.name, onclick: () => { S.croom = r.id; unmountChat(); mountChat(); } })));
+  $('roomhint').textContent = ROOMS.find(r => r.id === S.croom).hint + " Please don't share personal details.";
+  if (!unsub.chat) unsub.chat = subscribeMessages(collection(db, 'chatRooms', S.croom, 'messages'), $('chat-msgs'), 'Be the first to say salaam.');
+}
+function unmountChat() { if (unsub.chat) { unsub.chat(); unsub.chat = null; } }
+
+/* ===== WATCH TOGETHER ===== */
+const W = { id: null, player: null, ready: false, timer: null, unRoom: null, unMsgs: null, vid: null, lastT: 0, lastTick: 0, lastPlaying: false, lastPush: 0 };
+let ytPromise = null;
+function loadYT() {
+  if (ytPromise) return ytPromise;
+  ytPromise = new Promise((res, rej) => {
+    if (window.YT && window.YT.Player) { res(); return; }
+    window.onYouTubeIframeAPIReady = () => res();
+    const s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    s.onerror = () => { ytPromise = null; rej(new Error('yt')); };
+    document.head.append(s);
+  });
+  return ytPromise;
+}
+function ytId(u) {
+  try {
+    u = u.trim();
+    if (/^[\w-]{11}$/.test(u)) return u;
+    const x = new URL(/^https?:/i.test(u) ? u : 'https://' + u);
+    const host = x.hostname.replace(/^www\.|^m\./, '');
+    let id = null;
+    if (host === 'youtu.be') id = x.pathname.slice(1).split('/')[0];
+    else if (host.endsWith('youtube.com')) {
+      if (x.pathname === '/watch') id = x.searchParams.get('v');
+      else { const m = x.pathname.match(/^\/(embed|shorts|live|v)\/([\w-]{11})/); if (m) id = m[2]; }
+    }
+    return id && /^[\w-]{11}$/.test(id) ? id : null;
+  } catch (e) { return null; }
+}
+
+function mountWatchLobby() {
+  if (!unsub.rooms) {
+    unsub.rooms = onSnapshot(query(collection(db, 'watchRooms'), orderBy('createdAt', 'desc'), limit(20)), snap => {
+      S.rooms = docs(snap); renderRooms();
+    }, err => console.warn(err));
+  }
+  renderRooms();
+}
+function unmountWatchLobby() { if (unsub.rooms) { unsub.rooms(); unsub.rooms = null; } }
+function renderRooms() {
+  const box = $('rooms');
+  box.replaceChildren();
+  const list = S.rooms.filter(r => Date.now() - ms(r.createdAt) < 12 * 3600e3);
+  if (!list.length) box.append(h('p', { class: 'empty', text: 'No rooms yet. Create one and invite a friend.' }));
+  for (const r of list) {
+    box.append(h('div', { class: 'roomcard' },
+      h('div', {}, h('b', { text: r.title }), h('span', { class: 'fine', text: 'Hosted by ' + r.hostName })),
+      h('button', { class: 'btn btn-primary sm', type: 'button', text: 'Join', onclick: () => joinRoom(r.id) })));
+  }
+}
+$('room-new').onclick = () => {
+  const title = h('input', { placeholder: 'Room name', maxlength: '40' });
+  const link = h('input', { placeholder: 'Paste a YouTube link', inputmode: 'url' });
+  modal('Create a watch room', [
+    title, link,
+    h('p', { class: 'fine', text: 'Only share videos that are public domain, Creative Commons, or that you have permission to share.' }),
+    h('button', { class: 'btn btn-primary', type: 'button', text: 'Create room', onclick: async () => {
+      const vid = ytId(link.value);
+      const name = clean(title.value.trim()).slice(0, 40) || S.name + "'s room";
+      if (!vid) { toast('That does not look like a YouTube link.'); return; }
+      try {
+        const ref = await addDoc(collection(db, 'watchRooms'), { title: name, hostId: S.uid, hostName: S.name, videoId: vid, state: 'paused', time: 0, updatedAt: serverTimestamp(), createdAt: serverTimestamp() });
+        closeModal(); joinRoom(ref.id);
+      } catch (e) { toast('Could not create the room. Try again.'); }
+    } }),
+    h('button', { class: 'btn btn-ghost', type: 'button', text: 'Cancel', onclick: closeModal })
+  ]);
+};
+
+async function joinRoom(id) {
+  leaveRoom(true);
+  W.id = id;
+  $('watch-lobby').hidden = true; $('watch-room').hidden = false;
+  S.bgmWas = Music.playing; pauseMusic();
+  try { await loadYT(); } catch (e) { toast('Could not load the video player.'); leaveRoom(); return; }
+  if (W.id !== id) return;
+  W.unRoom = onSnapshot(doc(db, 'watchRooms', id), snap => {
+    if (W.id !== id) return;
+    if (!snap.exists()) { toast('This room was closed.'); leaveRoom(); return; }
+    S.room = snap.data({ serverTimestamps: 'estimate' });
+    const host = S.room.hostId === S.uid;
+    if (!W.player) makePlayer(host); else if (!host) applyRoom();
+    updateRoomUI(host);
+  }, err => { console.warn(err); toast('Could not open the room.'); leaveRoom(); });
+  W.unMsgs = subscribeMessages(collection(db, 'watchRooms', id, 'messages'), $('watch-msgs'), 'Say hello to the room.');
+}
+function makePlayer(host) {
+  $('ytwrap').replaceChildren(h('div', { id: 'ytp' }));
+  const vars = { playsinline: 1, rel: 0, modestbranding: 1, controls: host ? 1 : 0, disablekb: host ? 0 : 1 };
+  if (location.protocol.startsWith('http')) vars.origin = location.origin;
+  W.player = new YT.Player('ytp', {
+    videoId: S.room.videoId, width: '100%', height: '100%', playerVars: vars,
+    events: { onReady: () => { W.ready = true; W.vid = S.room.videoId; if (host) startHostSync(); else applyRoom(); } }
+  });
+}
+function updateRoomUI(host) {
+  const r = S.room;
+  $('room-title').textContent = r.title;
+  $('room-sub').textContent = host ? 'You are hosting' : 'Hosted by ' + r.hostName;
+  $('room-change').hidden = !host; $('room-close').hidden = !host;
+  $('shield').hidden = host;
+  $('w-sync').hidden = host;
+  $('w-note').textContent = host ? 'You control play, pause and seek for everyone.' : 'The host controls the video. Tap Sync if you drift.';
+}
+function applyRoom() {
+  const d = S.room;
+  if (!W.ready || !d || !W.player) return;
+  const ts = d.updatedAt && d.updatedAt.toMillis ? d.updatedAt.toMillis() : Date.now();
+  const playing = d.state === 'playing';
+  const target = (d.time || 0) + (playing ? Math.max(0, (Date.now() - ts) / 1000) : 0);
+  if (d.videoId !== W.vid) {
+    W.vid = d.videoId;
+    W.player.loadVideoById({ videoId: d.videoId, startSeconds: target });
+    if (!playing) setTimeout(() => { if (W.player) W.player.pauseVideo(); }, 500);
+    return;
+  }
+  const cur = W.player.getCurrentTime ? W.player.getCurrentTime() : 0;
+  if (Math.abs(cur - target) > 2.5) W.player.seekTo(target, true);
+  if (playing) {
+    W.player.playVideo();
+    setTimeout(() => { if (W.player && W.player.getPlayerState && ![1, 3].includes(W.player.getPlayerState())) toast('Tap Sync to start the video.'); }, 2500);
+  } else W.player.pauseVideo();
+}
+function startHostSync() {
+  clearInterval(W.timer);
+  W.lastTick = Date.now(); W.lastT = 0; W.lastPlaying = false; W.lastPush = 0;
+  W.timer = setInterval(() => {
+    const p = W.player;
+    if (!W.ready || !p || !p.getPlayerState || !W.id) return;
+    const st = p.getPlayerState();
+    const playing = st === 3 ? W.lastPlaying : st === 1;
+    const now = Date.now(), dt = (now - W.lastTick) / 1000, t = p.getCurrentTime();
+    const expected = W.lastT + (W.lastPlaying ? dt : 0);
+    const jumped = st !== 3 && Math.abs(t - expected) > 1.5;
+    const changed = playing !== W.lastPlaying;
+    const stale = playing && now - W.lastPush > 30000;
+    if (jumped || changed || stale) {
+      updateDoc(doc(db, 'watchRooms', W.id), { state: playing ? 'playing' : 'paused', time: t, updatedAt: serverTimestamp() }).catch(() => {});
+      W.lastPush = now;
+    }
+    W.lastT = t; W.lastTick = now; W.lastPlaying = playing;
+  }, 1000);
+}
+function leaveRoom(silent) {
+  clearInterval(W.timer);
+  if (W.unRoom) W.unRoom();
+  if (W.unMsgs) W.unMsgs();
+  W.unRoom = W.unMsgs = null;
+  try { if (W.player) W.player.destroy(); } catch (e) {}
+  W.player = null; W.ready = false; W.vid = null;
+  const had = W.id;
+  W.id = null; S.room = null;
+  $('ytwrap').replaceChildren();
+  $('watch-room').hidden = true; $('watch-lobby').hidden = false;
+  if (had && !silent && S.bgmWas) { startMusic(); S.bgmWas = false; }
+}
+$('room-leave').onclick = () => leaveRoom();
+$('room-close').onclick = async () => {
+  if (!W.id || !confirm('Close this room for everyone?')) return;
+  try { await deleteDoc(doc(db, 'watchRooms', W.id)); } catch (e) { toast('Could not close the room.'); }
+};
+$('room-change').onclick = () => {
+  const link = h('input', { placeholder: 'Paste a YouTube link', inputmode: 'url' });
+  modal('Change video', [
+    link,
+    h('button', { class: 'btn btn-primary', type: 'button', text: 'Change video', onclick: async () => {
+      const vid = ytId(link.value);
+      if (!vid) { toast('That does not look like a YouTube link.'); return; }
+      try {
+        await updateDoc(doc(db, 'watchRooms', W.id), { videoId: vid, time: 0, state: 'paused', updatedAt: serverTimestamp() });
+        if (W.player) W.player.cueVideoById(vid);
+        closeModal();
+      } catch (e) { toast('Could not change the video.'); }
+    } }),
+    h('button', { class: 'btn btn-ghost', type: 'button', text: 'Cancel', onclick: closeModal })
+  ]);
+};
+$('w-sync').onclick = () => { if (S.room) { W.vid = null; applyRoom(); } };
+$('w-mute').onclick = () => {
+  if (!W.player) return;
+  if (W.player.isMuted()) { W.player.unMute(); $('w-mute').textContent = 'Mute'; } else { W.player.mute(); $('w-mute').textContent = 'Unmute'; }
+};
+$('w-full').onclick = () => {
+  const f = W.player && W.player.getIframe && W.player.getIframe();
+  const el = $('ytwrap').parentElement;
+  const t = el.requestFullscreen ? el : f;
+  if (t && t.requestFullscreen) t.requestFullscreen().catch(() => toast('Full screen is not available here.'));
+};
+
+/* ===== CALM ===== */
+const DHIKR = [['SubhanAllah', 'سبحان الله'], ['Alhamdulillah', 'الحمد لله'], ['Allahu Akbar', 'الله أكبر'], ['Astaghfirullah', 'أستغفر الله'], ['La ilaha illallah', 'لا إله إلا الله']];
+const dh = { i: 0, n: 0 };
+function renderDhikr() {
+  $('dh-ar').textContent = DHIKR[dh.i][1];
+  $('dh-btn').textContent = dh.n;
+  $('dh-info').textContent = DHIKR[dh.i][0] + ': ' + (dh.n % 33) + ' of 33, ' + Math.floor(dh.n / 33) + ' rounds done';
+  document.querySelectorAll('#dh-chips .chip').forEach((c, i) => c.classList.toggle('sel', i === dh.i));
+}
+let bTimer = null, bStart = 0, bLast = '';
+function buildStatic() {
+  const tp = $('topics');
+  tp.replaceChildren(...TOPICS.map(t => h('button', { class: 'chip' + (t === S.topic ? ' sel' : ''), type: 'button', text: t, onclick: () => {
+    S.topic = t; tp.querySelectorAll('.chip').forEach(c => c.classList.toggle('sel', c.textContent === t));
+  } })));
+  document.querySelectorAll('.mood').forEach(b => b.onclick = () => {
+    document.querySelectorAll('.mood').forEach(x => x.classList.toggle('sel', x === b));
+    b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump');
+    const k = b.dataset.mood, box = $('moodreply');
+    box.replaceChildren(h('span', { text: MOOD[k] }));
+    if (k === 'low' || k === 'heavy') box.append(h('button', { class: 'btn btn-ghost sm', type: 'button', text: 'Talk to a listener', onclick: () => showTab('vent') }));
+  });
+  renderReminder();
+  renderMajlis(onlineUsers());
+  $('dh-chips').replaceChildren(...DHIKR.map((d, i) => h('button', { class: 'chip', type: 'button', text: d[0], onclick: () => { dh.i = i; dh.n = 0; renderDhikr(); } })));
+  renderDhikr();
+}
+$('dh-btn').onclick = () => {
+  dh.n++; renderDhikr();
+  if (dh.n % 33 === 0 && navigator.vibrate) navigator.vibrate(60);
+};
+$('dh-reset').onclick = () => { dh.n = 0; renderDhikr(); };
+$('bstart').onclick = () => {
+  if (bTimer) {
+    clearInterval(bTimer); bTimer = null; bLast = '';
+    $('bc').classList.remove('run'); $('bt').textContent = 'Ready when you are'; $('bstart').textContent = 'Start breathing';
+    return;
+  }
+  bStart = Date.now();
+  $('bc').classList.add('run'); $('bstart').textContent = 'Stop';
+  bTimer = setInterval(() => {
+    const t = (Date.now() - bStart) % 12000;
+    const w = t < 4000 ? 'Breathe in' : t < 6000 ? 'Hold' : 'Breathe out';
+    if (w !== bLast) { bLast = w; $('bt').textContent = w; }
+  }, 200);
+};
+</script>
+</body>
+</html>
